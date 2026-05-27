@@ -6,6 +6,7 @@ A pure frontend, single-file HTML Gantt chart tool for project management. No in
 
 ## Features
 
+- **Language Switch** — Toggle UI between Chinese and English (bilingual comments)
 - **WBS Breakdown** — Organize tasks hierarchically
 - **Gantt Chart Visualization** — Intuitive timeline and dependency view
 - **Today Marker** — Auto-highlights the current date
