@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目管理 · 甘特图</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #4f6ef7;
+  --primary-light: #eef1ff;
+  --primary-dark: #3a56d4;
+  --danger: #e74c5e;
+  --danger-light: #fde8ea;
+  --gray-50: #f8f9fc;
+  --gray-100: #eef0f5;
+  --gray-200: #dde0e8;
+  --gray-300: #c2c7d6;
+  --gray-400: #9ca3b4;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --p-low: #10b981;
+  --p-low-bg: #d1fae5;
+  --p-medium: #4f6ef7;
+  --p-medium-bg: #e0e7ff;
+  --p-high: #f59e0b;
+  --p-high-bg: #fef3c7;
+  --p-critical: #e74c5e;
+  --p-critical-bg: #fde8ea;
+  --today-color: #e74c5e;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  --radius: 8px;
+  --radius-sm: 5px;
+  --row-height: 30px;
+  --header-height: 48px;
+  --panel-width: 580px;
+  --col-wbs-width: 34px;
+  --col-date-width: 88px;
+  --col-dur-width: 44px;
+  --col-pred-width: 80px;
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; background: var(--gray-50); color: var(--gray-800); overflow: hidden; height: 100vh; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* ===== 工具栏 ===== */
+.toolbar { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #fff; border-bottom: 1px solid var(--gray-200); flex-shrink: 0; z-index: 100; flex-wrap: wrap; }
+.toolbar-title { font-size: 17px; font-weight: 700; color: var(--gray-800); white-space: nowrap; }
+.toolbar-title span { color: var(--primary); }
+.toolbar-stats { display: flex; gap: 10px; font-size: 12px; color: var(--gray-500); margin-right: auto; }
+.toolbar-stats .stat { display: flex; align-items: center; gap: 3px; }
+.toolbar-stats .stat b { color: var(--gray-700); font-weight: 600; }
+.toolbar-divider { width: 1px; height: 24px; background: var(--gray-200); flex-shrink: 0; }
+.toolbar-group { display: flex; align-items: center; gap: 4px; }
+
+.toolbar select, .toolbar input[type="text"] { padding: 5px 8px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; outline: none; background: #fff; transition: border-color .15s; }
+.toolbar select:focus, .toolbar input[type="text"]:focus { border-color: var(--primary); }
+.toolbar input[type="text"] { width: 140px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: var(--gray-700); transition: all .15s; white-space: nowrap; user-select: none; }
+.btn:hover { border-color: var(--gray-300); background: var(--gray-50); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-danger { color: var(--danger); border-color: transparent; }
+.btn-danger:hover { background: var(--danger-light); border-color: var(--danger); }
+.btn-sm { padding: 4px 8px; font-size: 11px; }
+.btn-icon { padding: 5px 7px; min-width: 28px; }
+.btn-ghost { border-color: transparent; background: transparent; }
+.btn-ghost:hover { background: var(--gray-100); }
+.zoom-label { font-size: 11px; color: var(--gray-500); min-width: 40px; text-align: center; }
+.btn:disabled { opacity: .4; cursor: default; pointer-events: none; }
+
+/* ===== 主区域 ===== */
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* ===== 左侧任务列表 ===== */
+.left-panel { width: var(--panel-width); flex-shrink: 0; display: flex; flex-direction: column; border-right: none; background: #fff; z-index: 10; position: relative; }
+.left-header { height: var(--header-height); flex-shrink: 0; display: flex; align-items: center; padding: 0 8px; border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-500); letter-spacing: .3px; gap: 0; user-select: none; }
+.left-header > [class^="col-"] { position: relative; }
+.left-body { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; scrollbar-width: none; -ms-overflow-style: none; }
+.left-body::-webkit-scrollbar { display: none; }
+
+.task-row { height: var(--row-height); display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--gray-100); cursor: pointer; font-size: 12px; color: var(--gray-700); transition: background .1s; user-select: none; gap: 0; }
+.task-row:hover { background: var(--primary-light); }
+.task-row.selected { background: var(--primary-light); border-left: 3px solid var(--primary); padding-left: 1px; }
+.task-row.collapsed { opacity: .75; }
+.task-row.parent-row { font-weight: 600; }
+
+.toggle-btn { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; font-size: 7px; color: var(--gray-500); border: none; background: none; border-radius: 3px; padding: 0; transition: transform .15s; }
+.toggle-btn:hover { background: var(--gray-100); }
+.toggle-btn.expanded { transform: rotate(90deg); }
+
+.task-indent { flex-shrink: 0; }
+
+.col-wbs { width: var(--col-wbs-width); flex-shrink: 0; font-size: 10px; color: var(--gray-400); font-family: 'SF Mono', Monaco, monospace; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-name { flex: 1; min-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+.col-date { width: var(--col-date-width); flex-shrink: 0; font-size: 11px; color: var(--gray-500); text-align: center; overflow: hidden; }
+.col-dur { width: var(--col-dur-width); flex-shrink: 0; font-size: 11px; color: var(--gray-500); text-align: center; }
+.col-pred { width: var(--col-pred-width); flex-shrink: 0; font-size: 10px; color: var(--gray-400); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.col-dot { width: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.priority-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.priority-dot.low { background: var(--p-low); }
+.priority-dot.medium { background: var(--p-medium); }
+.priority-dot.high { background: var(--p-high); }
+.priority-dot.critical { background: var(--p-critical); }
+
+/* 列宽拖动条 */
+.col-resize-handle {
+  position: absolute; right: -2px; top: 0; width: 5px; height: 100%;
+  cursor: col-resize; z-index: 10;
+  background: transparent;
+}
+.col-resize-handle:hover,
+.col-resize-handle.active { background: var(--primary); opacity: .4; }
+
+/* 面板拖动条 */
+.panel-resize-handle {
+  width: 4px; flex-shrink: 0; cursor: col-resize;
+  background: transparent; z-index: 20; transition: background .15s;
+}
+.panel-resize-handle:hover,
+.panel-resize-handle.dragging { background: var(--primary); opacity: .5; }
+
+.milestone-badge { font-size: 9px; padding: 0 4px; border-radius: 2px; background: var(--p-high-bg); color: var(--p-high); flex-shrink: 0; margin-left: 4px; }
+.critical-badge { font-size: 9px; padding: 0 4px; border-radius: 2px; background: var(--p-critical-bg); color: var(--p-critical); flex-shrink: 0; margin-left: 4px; }
+
+.separator-row { height: 22px; display: flex; align-items: center; padding: 0 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-400); }
+
+/* ===== 右侧甘特图 ===== */
+.right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.right-header { height: var(--header-height); flex-shrink: 0; overflow: hidden; border-bottom: 1px solid var(--gray-200); position: relative; background: #fff; z-index: 5; }
+.right-body { flex: 1; overflow: auto; position: relative; }
+
+/* 时间轴头部 */
+.th { position: absolute; top: 0; left: 0; height: 100%; pointer-events: none; }
+.th-year { position: absolute; top: 0; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--gray-500); border-right: 1px solid var(--gray-200); }
+.th-month { position: absolute; top: 22px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gray-500); border-right: 1px solid var(--gray-100); }
+
+/* 时间轴内容 */
+.tc { position: relative; min-height: 100%; }
+.tc-grid-line { position: absolute; top: 0; width: 1px; background: var(--gray-100); pointer-events: none; }
+.tc-grid-line.month { background: var(--gray-200); }
+.tc-grid-line.year { background: var(--gray-400); }
+.tc-grid-line.week { background: var(--gray-100); }
+.tc-grid-line.day { background: #f0f0f5; }
+.tc-today-line { position: absolute; top: 0; width: 2px; background: var(--today-color); pointer-events: none; z-index: 5; }
+.tc-today-label { position: absolute; top: 0; font-size: 10px; color: var(--today-color); font-weight: 600; padding: 1px 4px; pointer-events: none; z-index: 6; background: rgba(255,255,255,.85); border-radius: 0 0 3px 3px; }
+
+/* 甘特条 */
+.gantt-bar-row { position: absolute; left: 0; height: var(--row-height); display: flex; align-items: center; border-bottom: 1px solid var(--gray-100); pointer-events: none; }
+.gantt-bar { position: absolute; height: 20px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: box-shadow .15s, filter .12s; display: flex; align-items: center; padding: 0 6px; font-size: 10px; color: #fff; font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 4px; }
+.gantt-bar:hover { filter: brightness(1.08); box-shadow: 0 2px 8px rgba(79,110,247,0.3); }
+.gantt-bar.selected { box-shadow: 0 0 0 2px var(--gray-800), 0 2px 8px rgba(0,0,0,0.2); }
+.gantt-bar.bar-low { background: var(--p-low); }
+.gantt-bar.bar-medium { background: var(--p-medium); }
+.gantt-bar.bar-high { background: var(--p-high); }
+.gantt-bar.bar-critical { background: var(--p-critical); }
+.gantt-bar.bar-critical:hover { box-shadow: 0 2px 8px rgba(231,76,94,0.4); }
+.gantt-bar.parent-bar { height: 22px; border: 1px dashed rgba(255,255,255,.4); font-weight: 600; }
+.gantt-bar.parent-bar.bar-low { background: linear-gradient(135deg, var(--p-low), #34d399); }
+.gantt-bar.parent-bar.bar-medium { background: linear-gradient(135deg, var(--p-medium), #818cf8); }
+.gantt-bar.parent-bar.bar-high { background: linear-gradient(135deg, var(--p-high), #fbbf24); }
+.gantt-bar.parent-bar.bar-critical { background: linear-gradient(135deg, var(--p-critical), #f87171); }
+
+/* 当前日期范围高亮 */
+.gantt-bar.bar-today-range { outline: 2px solid var(--today-color) !important; outline-offset: 1px; border-radius: 4px; }
+.gantt-bar.bar-today-range.selected { outline: 2px solid var(--gray-800) !important; outline-offset: 1px; }
+.milestone-diamond.bar-today-range { box-shadow: 0 0 0 2px var(--today-color) !important; }
+.gantt-bar.bar-critical.bar-today-range { outline: 2px solid #fff !important; outline-offset: 1px; }
+
+/* 进度填充 */
+.bar-progress { position: absolute; top: 0; left: 0; height: 15%; border-radius: 2px; background: rgba(50,242,100,.8); pointer-events: none; }
+.bar-label { position: relative; z-index: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+
+/* 里程碑 */
+.milestone-wrap { position: absolute; pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.milestone-diamond { width: 14px; height: 14px; transform: rotate(45deg); border-radius: 2px; transition: box-shadow .15s; }
+.milestone-diamond.bar-low { background: var(--p-low); }
+.milestone-diamond.bar-medium { background: var(--p-medium); }
+.milestone-diamond.bar-high { background: var(--p-high); }
+.milestone-diamond.bar-critical { background: var(--p-critical); }
+.milestone-diamond:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.milestone-diamond.selected { box-shadow: 0 0 0 2px var(--gray-800); }
+
+/* 依赖箭头 SVG */
+.dep-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 3; }
+
+/* ===== 空状态 ===== */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; color: var(--gray-400); gap: 12px; }
+.empty-state svg { width: 64px; height: 64px; opacity: .4; }
+.empty-state p { font-size: 14px; }
+
+/* ===== 状态栏 (底部) ===== */
+.status-bar { height: 40px; flex-shrink: 0; background: #fff; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 12px; color: var(--gray-500); z-index: 100; }
+.status-time { font-family: 'SF Mono', Monaco, monospace; font-weight: 500; letter-spacing: 0.5px; }
+.status-tips { display: flex; align-items: center; transition: opacity 0.5s ease; }
+.status-tips.fade { opacity: 0; }
+
+/* ===== 模态框 ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal { background: #fff; border-radius: var(--radius); width: 540px; max-width: 94vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); transform: translateY(12px); transition: transform .2s; }
+.modal-overlay.show .modal { transform: translateY(0); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 0; font-size: 16px; font-weight: 700; }
+.modal-close { cursor: pointer; border: none; background: none; font-size: 22px; color: var(--gray-400); padding: 4px; line-height: 1; }
+.modal-close:hover { color: var(--gray-600); }
+.modal-body { padding: 18px 24px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 0 24px 18px; }
+
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 3px; }
+.form-input { width: 100%; padding: 7px 10px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; outline: none; transition: border-color .15s; background: #fff; }
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,110,247,0.12); }
+.form-input:disabled { background: var(--gray-50); color: var(--gray-400); cursor: not-allowed; }
+.form-row { display: flex; gap: 12px; }
+.form-row > * { flex: 1; }
+.form-hint { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+.form-checkbox { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); cursor: pointer; margin-top: 4px; }
+.form-checkbox input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+.form-select { padding: 7px 10px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; cursor: pointer; }
+.form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,110,247,0.12); }
+
+/* 前置任务选择列表 */
+.pred-list { display: flex; flex-direction: column; gap: 3px; max-height: 120px; overflow-y: auto; border: 1px solid var(--gray-100); border-radius: var(--radius-sm); padding: 4px; }
+.pred-item { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 3px; font-size: 12px; color: var(--gray-600); cursor: pointer; transition: background .1s; }
+.pred-item:hover { background: var(--gray-50); }
+.pred-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--primary); cursor: pointer; }
+
+/* ===== 确认对话框 ===== */
+.confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.confirm-overlay.show { opacity: 1; pointer-events: auto; }
+.confirm-box { background: #fff; border-radius: var(--radius); width: 380px; max-width: 90vw; padding: 24px; box-shadow: var(--shadow-lg); text-align: center; }
+.confirm-box h3 { font-size: 15px; margin-bottom: 6px; }
+.confirm-box p { font-size: 13px; color: var(--gray-500); margin-bottom: 18px; }
+.confirm-box .buttons { display: flex; gap: 8px; justify-content: center; }
+
+/* ===== Toast ===== */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gray-800); color: #fff; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; z-index: 2000; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: #10b981; }
+.toast.error { background: var(--danger); }
+
+@media (max-width: 768px) {
+  .left-panel { width: 360px !important; }
+  .col-date { width: var(--col-date-width, 72px); font-size: 10px; }
+  .col-dur { width: var(--col-dur-width, 36px); font-size: 10px; }
+  .col-pred { width: var(--col-pred-width, 60px); font-size: 9px; }
+  .toolbar { padding: 6px 10px; gap: 6px; }
+  .toolbar-title { font-size: 14px; }
+  .toolbar input[type="text"] { width: 100px; }
+  .toolbar-stats { font-size: 11px; }
+  .modal { width: 100%; max-width: 100%; max-height: 100vh; border-radius: 0; }
+  .status-bar { padding: 0 10px; font-size: 11px; }
+  .status-tips { display: none; /* 手机端隐藏tips以节省空间 */ }
+}
+</style>
+</head>
+<body>
+
+<div class="app" style="display:flex;flex-direction:column;height:100vh;">
+
+<!-- 工具栏 -->
+<div class="toolbar">
+  <div class="toolbar-title">📊 项目<span>甘特图</span></div>
+  <div class="toolbar-stats" id="stats"></div>
+
+  <div class="toolbar-divider"></div>
+
+  <div class="toolbar-group">
+    <input type="text" id="searchInput" placeholder="搜索任务..." />
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <div class="toolbar-group">
+    <button class="btn btn-icon btn-ghost" id="zoomOutBtn" title="缩小">−</button>
+    <span class="zoom-label" id="zoomLabel">100%</span>
+    <button class="btn btn-icon btn-ghost" id="zoomInBtn" title="放大">+</button>
+  </div>
+  <div class="toolbar-group">
+    <button class="btn btn-sm" id="todayBtn">📅 今天</button>
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="btn btn-primary btn-sm" id="addBtn">＋ 添加任务</button>
+  <button class="btn btn-sm" id="addSubBtn">＋ 子任务</button>
+  <button class="btn btn-danger btn-sm" id="deleteBtn">🗑 删除</button>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="btn btn-sm" id="indentBtn" title="降级">↦ 缩进</button>
+  <button class="btn btn-sm" id="outdentBtn" title="升级">↤ 取消缩进</button>
+  <button class="btn btn-sm" id="moveUpBtn" title="上移">↑</button>
+  <button class="btn btn-sm" id="moveDownBtn" title="下移">↓</button>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="btn btn-sm" id="undoBtn" title="撤销 (Ctrl+Z)">↩ 撤销</button>
+  <button class="btn btn-sm" id="redoBtn" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="btn btn-sm" id="importBtn">📂 导入</button>
+  <button class="btn btn-sm" id="exportBtn">💾 保存&导出</button>
+  <input type="file" id="fileInput" accept=".json" style="display:none" />
+</div>
+
+<!-- 主区域 -->
+<div class="main">
+  <!-- 左侧任务列表 -->
+  <div class="left-panel" id="leftPanel">
+    <div class="left-header">
+      <span style="width:16px;flex-shrink:0;"></span>
+      <span class="col-wbs">WBS<span class="col-resize-handle" data-col="wbs"></span></span>
+      <span class="col-name">任务名称</span>
+      <span class="col-date">开始日期<span class="col-resize-handle" data-col="startDate"></span></span>
+      <span class="col-date">结束日期<span class="col-resize-handle" data-col="endDate"></span></span>
+      <span class="col-dur">工期<span class="col-resize-handle" data-col="dur"></span></span>
+      <span class="col-pred">前置任务<span class="col-resize-handle" data-col="pred"></span></span>
+      <span class="col-dot"></span>
+    </div>
+    <div class="left-body" id="leftBody">
+      <div id="taskList"></div>
+    </div>
+  </div>
+  <div class="panel-resize-handle" id="panelResizeHandle"></div>
+
+  <!-- 右侧甘特图 -->
+  <div class="right-panel">
+    <div class="right-header" id="rightHeader">
+      <div class="th" id="timelineHeader"></div>
+    </div>
+    <div class="right-body" id="rightBody">
+      <div class="tc" id="timelineContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部状态栏 -->
+<div class="status-bar">
+  <div class="status-time" id="statusTime"></div>
+  <div class="status-tips" id="statusTips"></div>
+</div>
+
+</div>
+
+<!-- 编辑模态框 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalTitle">编辑任务</span>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId" />
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label class="form-label">任务名称 *</label>
+          <input class="form-input" id="editName" placeholder="请输入任务名称" />
+        </div>
+        <div class="form-group" style="flex:0 0 100px;">
+          <label class="form-label">优先级</label>
+          <select class="form-select" id="editPriority" style="width:100%;">
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+            <option value="critical">关键</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">开始日期 *</label>
+          <input class="form-input" id="editStartDate" type="date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">完成日期 *</label>
+          <input class="form-input" id="editEndDate" type="date" />
+        </div>
+        <div class="form-group" style="flex:0 0 70px;">
+          <label class="form-label">进度</label>
+          <input class="form-input" id="editProgress" type="number" min="0" max="100" value="0" style="text-align:center;" />
+        </div>
+      </div>
+
+      <div class="form-group" id="parentDateHint" style="display:none;">
+        <div style="padding:6px 10px;background:var(--gray-50);border-radius:4px;font-size:12px;color:var(--gray-500);">
+          ⓘ 此任务包含子任务，日期和进度已从子任务自动计算（只读）
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">负责人</label>
+          <input class="form-input" id="editAssignee" placeholder="负责人姓名" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">是否里程碑</label>
+          <label class="form-checkbox" style="margin-top:6px;">
+            <input type="checkbox" id="editIsMilestone" />
+            该任务是一个里程碑（单日节点）
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">前置任务（完成-开始依赖）</label>
+        <div class="pred-list" id="predList"></div>
+        <div class="form-hint">勾选需要在此任务之前完成的任务</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="form-input" id="editNotes" rows="2" placeholder="可选备注信息" style="resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="modalCancel">取消</button>
+      <button class="btn btn-primary" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认对话框 -->
+<div class="confirm-overlay" id="confirmDlg">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmMsg">确定要执行此操作吗？</p>
+    <div class="buttons">
+      <button class="btn" id="confirmCancel">取消</button>
+      <button class="btn" id="confirmMiddle" style="display:none;"></button>
+      <button class="btn btn-danger" id="confirmOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  数据层
+// ============================================================
+const STORAGE_KEY = 'gantt_project_data';
+
+const ZOOM_LEVELS = [
+  0.05, 0.06, 0.08, 0.11, 0.14, 0.17, 0.22, 0.29, 0.37, 0.47,
+  0.61, 0.78, 1.0,  1.3,  1.7,  2.1,  2.7,  3.5,  4.5,  5.8,
+  7.4,  9.5,  12,   16,   20,   26
+];
+// 默认缩放索引 17 对应 3.5 像素/天，365天约为 1277 像素，刚好铺满主流屏幕视口（约1年范围）
+const DEFAULT_ZOOM_INDEX = 17;
+const ROW_HEIGHT = 30;
+const HEADER_HEIGHT = 48;
+// 底部留白高度，防止最底部的任务紧贴边缘
+const BREATHING_ROOM = 60; 
+
+const SAMPLE_TASKS = [
+  { id: 'mpl44ughbdyxz', name: '项目1', startDate: '2026-05-25', endDate: '2026-06-25', progress: 0, priority: 'medium', predecessors: [], parentId: null, expanded: true, notes: '', assignee: '' },
+  { id: 'mpl451lvw0twu', name: '需求确认', startDate: '2026-01-01', endDate: '2026-05-31', progress: 0, priority: 'medium', predecessors: [], parentId: 'mpl44ughbdyxz', expanded: true, notes: '', assignee: '' },
+  { id: 'mpnszmzbhmlru', name: '项目计划调整', startDate: '2026-05-13', endDate: '2026-05-13', progress: 0, priority: 'medium', predecessors: [], parentId: 'mpl44ughbdyxz', expanded: true, notes: '', assignee: '' },
+  { id: 'mpl45ift9z0wp', name: '程序开发', startDate: '2026-06-01', endDate: '2026-07-31', progress: 0, priority: 'medium', predecessors: ['mpl451lvw0twu'], parentId: 'mpl44ughbdyxz', expanded: true, notes: '', assignee: '' },
+  { id: 'mpl45uruc16ud', name: '验证', startDate: '2026-08-01', endDate: '2026-10-31', progress: 0, priority: 'medium', predecessors: ['mpl45ift9z0wp'], parentId: 'mpl44ughbdyxz', expanded: true, notes: '', assignee: '' },
+  { id: 'mpl46aahk5kf7', name: '交付', startDate: '2026-11-01', endDate: '2026-12-31', progress: 0, priority: 'medium', predecessors: ['mpl45uruc16ud'], parentId: 'mpl44ughbdyxz', expanded: true, notes: '', assignee: '' },
+];
+
+let tasks = [];
+let filterQuery = '';
+let zoomIndex = DEFAULT_ZOOM_INDEX;
+let selectedTaskId = null;
+let panelResizeData = null;
+let colResizeData = null;
+let undoStack = [];
+let redoStack = [];
+const UNDO_LIMIT = 50;
+
+// DOM refs
+const $ = id => document.getElementById(id);
+const leftBody = $('leftBody');
+const rightBody = $('rightBody');
+const rightHeader = $('rightHeader');
+const taskList = $('taskList');
+const timelineHeader = $('timelineHeader');
+const timelineContent = $('timelineContent');
+const searchInput = $('searchInput');
+const zoomLabel = $('zoomLabel');
+const stats = $('stats');
+const leftPanel = $('leftPanel');
+
+// ============================================================
+//  界面状态（面板/列宽）
+// ============================================================
+const UI_STORAGE_KEY = 'gantt_ui_state';
+
+const COL_CONFIG = {
+  wbs: { cssVar: '--col-wbs-width', min: 30 },
+  startDate: { cssVar: '--col-date-width', min: 75 },
+  endDate: { cssVar: '--col-date-width', min: 75 },
+  dur: { cssVar: '--col-dur-width', min: 36 },
+  pred: { cssVar: '--col-pred-width', min: 50 }
+};
+
+let uiState = { panelWidth: 580 };
+
+function loadUiState() {
+  try {
+    const raw = localStorage.getItem(UI_STORAGE_KEY);
+    if (raw) { const d = JSON.parse(raw); if (d.panelWidth) uiState = d; }
+  } catch(e) { /* ignore */ }
+  applyUiState();
+}
+
+function saveUiState() {
+  try { localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(uiState)); } catch(e) { /* ignore */ }
+}
+
+function applyUiState() {
+  leftPanel.style.width = (uiState.panelWidth || 580) + 'px';
+  for (const [key, cfg] of Object.entries(COL_CONFIG)) {
+    if (uiState['col_' + key] != null) {
+      document.documentElement.style.setProperty(cfg.cssVar, uiState['col_' + key] + 'px');
+    }
+  }
+}
+
+function getColMinWidth(col) { return COL_CONFIG[col] ? COL_CONFIG[col].min : 30; }
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(tasks));
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  redoStack = [];
+}
+
+function undo() {
+  if (undoStack.length === 0) { showToast('没有可撤销的操作', 'error'); return; }
+  redoStack.push(JSON.stringify(tasks));
+  tasks = JSON.parse(undoStack.pop());
+  saveData();
+  render();
+  showToast('已撤销', 'success');
+}
+
+function redo() {
+  if (redoStack.length === 0) { showToast('没有可重做的操作', 'error'); return; }
+  undoStack.push(JSON.stringify(tasks));
+  tasks = JSON.parse(redoStack.pop());
+  saveData();
+  render();
+  showToast('已重做', 'success');
+}
+
+/** 根据前置任务自动调整起始日期：取所有前置任务结束日期的最大值+1天 */
+function recalcStartFromPredecessors(taskData) {
+  if (!taskData.predecessors || taskData.predecessors.length === 0) return false;
+  let maxEnd = null;
+  for (const pid of taskData.predecessors) {
+    const pt = tasks.find(t => t.id === pid);
+    if (!pt) continue;
+    const end = parseDate(pt.endDate);
+    if (end && (!maxEnd || end > maxEnd)) maxEnd = end;
+  }
+  if (!maxEnd) return false;
+  const nextDay = new Date(maxEnd);
+  nextDay.setDate(nextDay.getDate() + 1);
+  const recommended = toDateStr(nextDay);
+  if (recommended && recommended !== taskData.startDate) {
+    taskData.startDate = recommended;
+    return true;
+  }
+  return false;
+}
+
+// ============================================================
+//  工具函数
+// ============================================================
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function parseDate(s) {
+  if (!s) return null;
+  const d = new Date(s + (s.includes('T') ? '' : 'T00:00:00'));
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function toDateStr(d) {
+  if (!d) return null;
+  if (typeof d === 'string') return d;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+
+function daysBetween(a, b) {
+  const ta = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+  const tb = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+  return Math.round((tb - ta) / 86400000);
+}
+
+function addMonths(d, n) {
+  const r = new Date(d); r.setMonth(r.getMonth() + n); return r;
+}
+
+function getToday() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function getDayWidth() { return ZOOM_LEVELS[zoomIndex] || ZOOM_LEVELS[DEFAULT_ZOOM_INDEX]; }
+
+// ============================================================
+//  树结构工具
+// ============================================================
+function buildChildrenMap() {
+  const map = { __root__: [] };
+  tasks.forEach(t => {
+    const pid = t.parentId || '__root__';
+    if (!map[pid]) map[pid] = [];
+    map[pid].push(t);
+  });
+  return map;
+}
+
+function getDirectChildren(parentId) {
+  return tasks.filter(t => (t.parentId || null) === (parentId || null));
+}
+
+function getSiblings(taskId) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return [];
+  return getDirectChildren(task.parentId);
+}
+
+function getSubtreeIds(taskId) {
+  const ids = [taskId];
+  const childrenMap = buildChildrenMap();
+  function collect(pid) {
+    const kids = childrenMap[pid] || [];
+    kids.forEach(k => { ids.push(k.id); collect(k.id); });
+  }
+  collect(taskId);
+  return ids;
+}
+
+function getVisibleTaskList() {
+  const childrenMap = buildChildrenMap();
+  const result = [];
+  function walk(parentId, depth) {
+    const kids = childrenMap[parentId] || [];
+    for (const t of kids) {
+      if (filterQuery) {
+        const q = filterQuery.toLowerCase();
+        const nameMatch = t.name.toLowerCase().includes(q);
+        if (nameMatch) result.push({ task: t, depth });
+        // Always walk children when filtering, so matching children under
+        // non-matching parents are still found
+        if (t.expanded !== false) walk(t.id, depth + 1);
+      } else {
+        // No filter: normal tree walk
+        result.push({ task: t, depth });
+        if (t.expanded !== false) walk(t.id, depth + 1);
+      }
+    }
+  }
+  walk('__root__', 0);
+  return result;
+}
+
+function getMaxDepth() {
+  const childrenMap = buildChildrenMap();
+  let maxDepth = 0;
+  function walk(pid, depth) {
+    const kids = childrenMap[pid] || [];
+    kids.forEach(k => { maxDepth = Math.max(maxDepth, depth + 1); walk(k.id, depth + 1); });
+  }
+  walk('__root__', 0);
+  return maxDepth;
+}
+
+/** 计算某个任务在其子树中的最大深度（用于缩进深度限制） */
+function getMaxDepthOfTask(taskId) {
+  const childrenMap = buildChildrenMap();
+  let maxDepth = 0;
+  function walk(pid, depth) {
+    const kids = childrenMap[pid] || [];
+    kids.forEach(k => { maxDepth = Math.max(maxDepth, depth + 1); walk(k.id, depth + 1); });
+  }
+  walk(taskId, 0);
+  return maxDepth;
+}
+
+// ============================================================
+//  WBS 生成
+// ============================================================
+function rebuildWbs() {
+  const childrenMap = buildChildrenMap();
+  function walk(parentId, prefix) {
+    const kids = childrenMap[parentId] || [];
+    kids.forEach((t, i) => {
+      t._wbs = prefix ? prefix + '.' + (i + 1) : String(i + 1);
+      walk(t.id, t._wbs);
+    });
+  }
+  walk('__root__', '');
+}
+
+// ============================================================
+//  父任务日期自动计算
+// ============================================================
+function isParentTask(task) {
+  if (!task || !task.id) return false;
+  return tasks.some(t => t.parentId === task.id);
+}
+
+function getTaskDates(task) {
+  const children = getDirectChildren(task.id);
+  if (children.length === 0) {
+    return { start: parseDate(task.startDate), end: parseDate(task.endDate) };
+  }
+  let minStart = null, maxEnd = null;
+  children.forEach(c => {
+    const cd = getTaskDates(c);
+    if (cd.start && (!minStart || cd.start < minStart)) minStart = cd.start;
+    if (cd.end && (!maxEnd || cd.end > maxEnd)) maxEnd = cd.end;
+  });
+  return { start: minStart, end: maxEnd };
+}
+
+function getParentProgress(taskId) {
+  const children = getDirectChildren(taskId);
+  if (children.length === 0) {
+    const t = tasks.find(t => t.id === taskId);
+    return t ? t.progress : 0;
+  }
+  let totalDur = 0, weighted = 0;
+  children.forEach(c => {
+    const cd = getTaskDates(c.id);
+    if (cd.start && cd.end) {
+      const dur = daysBetween(cd.start, cd.end) + 1;
+      totalDur += dur;
+      weighted += getParentProgress(c.id) * dur;
+    }
+  });
+  return totalDur > 0 ? Math.round(weighted / totalDur) : 0;
+}
+
+function isMilestone(task) {
+  if (!task.startDate || !task.endDate) return false;
+  const s = parseDate(task.startDate);
+  const e = parseDate(task.endDate);
+  return s && e && daysBetween(s, e) === 0;
+}
+
+function calcDuration(task) {
+  const dates = isParentTask(task) ? getTaskDates(task) : { start: parseDate(task.startDate), end: parseDate(task.endDate) };
+  if (!dates.start || !dates.end) return '';
+  return daysBetween(dates.start, dates.end) + 1;
+}
+
+function getPredDisplay(task) {
+  if (!task.predecessors || task.predecessors.length === 0) return '';
+  return task.predecessors.map(pid => {
+    const pt = tasks.find(t => t.id === pid);
+    return pt ? (pt._wbs || pid) : pid;
+  }).join(', ');
+}
+
+function isInDateRange(task) {
+  if (isParentTask(task)) return false;
+  const today = getToday();
+  const start = parseDate(task.startDate);
+  const end = parseDate(task.endDate);
+  if (!start || !end) return false;
+  return daysBetween(start, today) >= 0 && daysBetween(today, end) >= 0;
+}
+
+// ============================================================
+//  关键路径计算
+// ============================================================
+function getLeafTasks() {
+  return tasks.filter(t => !isParentTask(t));
+}
+
+function topologicalSort(leaves) {
+  const visited = {}, stack = {};
+  const result = [];
+  const taskMap = {};
+  leaves.forEach(t => taskMap[t.id] = t);
+
+  function visit(id) {
+    if (stack[id]) return false; // cycle detected
+    if (visited[id]) return true;
+    visited[id] = true;
+    stack[id] = true;
+    const t = taskMap[id];
+    if (t && t.predecessors) {
+      for (const pid of t.predecessors) {
+        if (taskMap[pid]) { if (!visit(pid)) return false; }
+      }
+    }
+    stack[id] = false;
+    if (t) result.push(t);
+    return true;
+  }
+
+  for (const t of leaves) {
+    if (!visited[t.id]) { if (!visit(t.id)) return null; }
+  }
+  return result;
+}
+
+function calcCriticalPath() {
+  // Reset
+  tasks.forEach(t => { t._isCritical = false; });
+
+  const childrenMap = buildChildrenMap();
+  const leaves = getLeafTasks();
+  if (leaves.length === 0) return;
+
+  const { minDate } = calcTimelineRange();
+  const today = getToday();
+
+  leaves.forEach(t => {
+    const dates = getTaskDates(t);
+    const start = dates.start || today;
+    const end = dates.end || today;
+    t._dayStart = daysBetween(minDate, start);
+    t._dayEnd = daysBetween(minDate, end);
+    t._duration = Math.max(daysBetween(start, end) + 1, 1);
+  });
+
+  const sorted = topologicalSort(leaves);
+  if (!sorted) { showToast('检测到循环依赖，无法计算关键路径', 'error'); return; }
+
+  const leafMap = {};
+  sorted.forEach(t => leafMap[t.id] = t);
+
+  // Forward pass
+  sorted.forEach(t => {
+    if (!t.predecessors || t.predecessors.length === 0) {
+      t._es = t._dayStart;
+    } else {
+      t._es = Math.max(...t.predecessors.map(pid => {
+        const pred = leafMap[pid];
+        return pred ? pred._ef : t._dayStart;
+      }));
+    }
+    t._ef = t._es + t._duration - 1;
+  });
+
+  // Backward pass
+  const projectEnd = sorted.length > 0 ? Math.max(...sorted.map(t => t._ef)) : 0;
+  sorted.reverse().forEach(t => {
+    const successors = sorted.filter(s => s.predecessors && s.predecessors.includes(t.id));
+    if (successors.length === 0) {
+      t._lf = projectEnd;
+    } else {
+      t._lf = Math.min(...successors.map(s => s._lf || projectEnd));
+    }
+    t._ls = t._lf - t._duration + 1;
+    t._float = t._ls - t._es;
+    t._isCritical = t._float < 1;
+  });
+
+  // Propagate to parent tasks
+  function propagateToParent(taskId) {
+    const t = tasks.find(t => t.id === taskId);
+    if (!t) return;
+    const children = getDirectChildren(taskId);
+    const anyChildCritical = children.some(c => {
+      const ct = tasks.find(tt => tt.id === c.id);
+      return ct && (ct._isCritical || propagateToParent(c.id));
+    });
+    if (anyChildCritical) t._isCritical = true;
+    return t._isCritical;
+  }
+  tasks.forEach(t => {
+    if (t._isCritical) propagateToParent(t.parentId);
+  });
+}
+
+// ============================================================
+//  时间轴计算
+// ============================================================
+function calcTimelineRange() {
+  const today = getToday();
+  let minDate = null, maxDate = null;
+  if (tasks.length === 0) {
+    minDate = addMonths(today, -6);
+    maxDate = addMonths(today, 12);
+  } else {
+    for (const t of tasks) {
+      const dates = getTaskDates(t);
+      if (dates.start && (!minDate || dates.start < minDate)) minDate = dates.start;
+      if (dates.end && (!maxDate || dates.end > maxDate)) maxDate = dates.end;
+    }
+    if (minDate) minDate = addMonths(minDate, -3);
+    else minDate = addMonths(today, -12);
+    if (!maxDate || maxDate < today) maxDate = today;
+    maxDate = addMonths(maxDate, 6);
+  }
+  minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth() + 1, 0);
+  return { minDate, maxDate };
+}
+
+function calcBarPos(start, end, dayWidth, rangeStart) {
+  if (!start || !end || end < start) return null;
+  const left = daysBetween(rangeStart, start) * dayWidth;
+  const w = daysBetween(start, end) * dayWidth + dayWidth;
+  return { left, width: Math.max(w, 4) };
+}
+
+// ============================================================
+//  渲染引擎
+// ============================================================
+function render() {
+  const dayWidth = getDayWidth();
+  const { minDate, maxDate } = calcTimelineRange();
+  const totalDays = daysBetween(minDate, maxDate);
+  const totalWidth = totalDays * dayWidth;
+  const visibleTasks = getVisibleTaskList();
+  const hasFilter = !!filterQuery;
+
+  calcCriticalPath();
+  rebuildWbs();
+
+  renderStats();
+  renderTaskList(visibleTasks, hasFilter);
+  renderTimelineHeader(minDate, maxDate, dayWidth, totalWidth);
+  renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth);
+
+  // 修复滚动条遮挡与左右同步错位问题
+  requestAnimationFrame(() => {
+    // 获取右侧横向滚动条的高度
+    const hScrollbarHeight = rightBody.offsetHeight - rightBody.clientHeight;
+    // 将左侧任务列表的底部 padding 设为 (留白高度 + 滚动条高度)
+    // 这样左右两侧的 scrollHeight 将完美一致，彻底解决滚动错位问题
+    taskList.style.paddingBottom = (BREATHING_ROOM + (hScrollbarHeight > 0 ? hScrollbarHeight : 0)) + 'px';
+  });
+}
+
+function renderStats() {
+  const total = tasks.length;
+  const milestones = tasks.filter(t => isMilestone(t) && !isParentTask(t)).length;
+  const criticalCount = tasks.filter(t => t._isCritical).length;
+  stats.innerHTML = `
+    <span class="stat">任务 <b>${total}</b></span>
+    <span class="stat">里程碑 <b style="color:var(--p-high)">${milestones}</b></span>
+    <span class="stat">关键路径 <b style="color:var(--p-critical)">${criticalCount}</b></span>
+  `;
+}
+
+function renderTaskList(visibleTasks, hasFilter) {
+  taskList.innerHTML = '';
+  if (visibleTasks.length === 0) {
+    taskList.innerHTML = `<div style="padding:40px 14px;text-align:center;font-size:13px;color:var(--gray-400);">${tasks.length === 0 ? '暂无任务，点击"添加任务"开始' : '无匹配任务'}</div>`;
+    return;
+  }
+
+  visibleTasks.forEach(({ task, depth }) => {
+    const row = document.createElement('div');
+    row.className = 'task-row' + (task._isCritical ? ' critical' : '') + (isParentTask(task) ? ' parent-row' : '');
+    if (task.id === selectedTaskId) row.classList.add('selected');
+    row.dataset.id = task.id;
+
+    // Toggle button
+    const children = getDirectChildren(task.id);
+    const hasChildren = children.length > 0;
+    const toggle = document.createElement('button');
+    toggle.className = 'toggle-btn' + (task.expanded !== false ? ' expanded' : '');
+    toggle.textContent = '▶';
+    toggle.style.visibility = hasChildren ? 'visible' : 'hidden';
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      task.expanded = task.expanded !== false ? false : true;
+      render();
+    });
+    row.appendChild(toggle);
+
+    // Indent spacer
+    const indent = document.createElement('span');
+    indent.className = 'task-indent';
+    indent.style.width = (depth * 20) + 'px';
+    row.appendChild(indent);
+
+    // WBS
+    const wbs = document.createElement('span');
+    wbs.className = 'col-wbs';
+    wbs.textContent = task._wbs || '';
+    row.appendChild(wbs);
+
+    // Name + badges
+    const name = document.createElement('span');
+    name.className = 'col-name';
+    name.textContent = task.name;
+    if (isMilestone(task) && !isParentTask(task)) {
+      const mb = document.createElement('span');
+      mb.className = 'milestone-badge';
+      mb.textContent = '◆';
+      mb.title = '里程碑：该任务为单日节点';
+      name.appendChild(mb);
+    }
+    if (task._isCritical) {
+      const cb = document.createElement('span');
+      cb.className = 'critical-badge';
+      cb.textContent = '⚡';
+      cb.title = '关键路径：此任务延迟将影响项目总工期';
+      name.appendChild(cb);
+    }
+    row.appendChild(name);
+
+    // Start date
+    const sd = document.createElement('span');
+    sd.className = 'col-date';
+    if (isParentTask(task)) {
+      const dates = getTaskDates(task);
+      sd.textContent = dates.start ? toDateStr(dates.start) : '';
+    } else {
+      sd.textContent = task.startDate || '';
+    }
+    row.appendChild(sd);
+
+    // End date
+    const ed = document.createElement('span');
+    ed.className = 'col-date';
+    if (isParentTask(task)) {
+      const dates = getTaskDates(task);
+      ed.textContent = dates.end ? toDateStr(dates.end) : '';
+    } else {
+      ed.textContent = task.endDate || '';
+    }
+    row.appendChild(ed);
+
+    // Duration
+    const dur = document.createElement('span');
+    dur.className = 'col-dur';
+    const d = calcDuration(task);
+    dur.textContent = d ? d + '天' : '';
+    row.appendChild(dur);
+
+    // Predecessors
+    const pred = document.createElement('span');
+    pred.className = 'col-pred';
+    pred.textContent = getPredDisplay(task);
+    row.appendChild(pred);
+
+    // Priority dot
+    const dot = document.createElement('span');
+    dot.className = 'col-dot';
+    const pdot = document.createElement('span');
+    pdot.className = 'priority-dot ' + (task.priority || 'medium');
+    dot.appendChild(pdot);
+    row.appendChild(dot);
+
+    row.addEventListener('click', () => selectTask(task.id));
+    row.addEventListener('dblclick', () => openEditModal(task.id));
+
+    taskList.appendChild(row);
+  });
+}
+
+function renderTimelineHeader(minDate, maxDate, dayWidth, totalWidth) {
+  timelineHeader.innerHTML = '';
+  timelineHeader.style.width = totalWidth + 'px';
+  timelineHeader.style.height = HEADER_HEIGHT + 'px';
+
+  const showMonthLabels = dayWidth >= 1.5;
+
+  let cursor = new Date(minDate);
+  const yearGroups = [];
+  let currentYear = null;
+
+  while (cursor <= maxDate) {
+    const year = cursor.getFullYear();
+    const month = cursor.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const monthWidth = daysInMonth * dayWidth;
+    if (!currentYear || currentYear.year !== year) {
+      currentYear = { year, startLeft: daysBetween(minDate, cursor) * dayWidth, width: 0, months: [] };
+      yearGroups.push(currentYear);
+    }
+    currentYear.months.push({ month, daysInMonth, width: monthWidth });
+    currentYear.width += monthWidth;
+    cursor.setMonth(month + 1);
+  }
+
+  const showEveryYear = dayWidth >= 0.29;
+  const todayYear = getToday().getFullYear();
+  for (const yg of yearGroups) {
+    const yearDiv = document.createElement('div');
+    yearDiv.className = 'th-year';
+    yearDiv.style.left = yg.startLeft + 'px';
+    yearDiv.style.width = yg.width + 'px';
+    const isFiveYear = Math.abs(yg.year - todayYear) % 5 === 0;
+    if (showEveryYear || isFiveYear) {
+      yearDiv.textContent = yg.year + '年';
+      if (yg.width < 25) yearDiv.style.fontSize = '9px';
+    }
+    timelineHeader.appendChild(yearDiv);
+
+    if (showMonthLabels) {
+      let mLeft = yg.startLeft;
+      for (const m of yg.months) {
+        const monthDiv = document.createElement('div');
+        monthDiv.className = 'th-month';
+        monthDiv.style.left = mLeft + 'px';
+        monthDiv.style.width = m.width + 'px';
+        monthDiv.textContent = (m.month + 1) + '月';
+        if (m.width < 24) monthDiv.style.fontSize = '9px';
+        if (m.width < 16) monthDiv.textContent = '';
+        timelineHeader.appendChild(monthDiv);
+        mLeft += m.width;
+      }
+    }
+  }
+}
+
+function renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth) {
+  const tc = timelineContent;
+  const today = getToday();
+
+  // Build HTML string for performance
+  let html = '';
+  const sb = []; // for SVG elements added after
+
+  // Grid lines
+  const showMonthLines = dayWidth >= 2.5;
+  const showWeekLines = dayWidth >= 5;
+  const showDayLines = dayWidth >= 12;
+  let cursor = new Date(minDate);
+
+  while (cursor <= maxDate) {
+    const left = daysBetween(minDate, cursor) * dayWidth;
+    if (cursor.getMonth() === 0) {
+      const cls = 'tc-grid-line' + (dayWidth < 2.5 ? ' year' : ' month');
+      html += `<div class="${cls}" style="left:${left}px;height:100%;"></div>`;
+    } else if (showMonthLines) {
+      html += `<div class="tc-grid-line month" style="left:${left}px;height:100%;"></div>`;
+    }
+    // Weekly lines (every Monday)
+    if (showWeekLines && cursor.getDay() === 1) {
+      html += `<div class="tc-grid-line week" style="left:${left}px;height:100%;"></div>`;
+    }
+    // Daily lines (every day)
+    if (showDayLines) {
+      // Only if we're not already adding a month line (skip duplicate)
+      if (cursor.getDate() !== 1 || !showMonthLines) {
+        // Don't add daily line for 1st as it's already covered
+      }
+      // Actually just add daily lines for every day that isn't the 1st
+      if (cursor.getDate() !== 1) {
+        html += `<div class="tc-grid-line day" style="left:${left}px;height:100%;"></div>`;
+      }
+    }
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  // Today line
+  const todayLeft = daysBetween(minDate, today) * dayWidth;
+  if (todayLeft >= 0 && todayLeft <= totalWidth) {
+    html += `<div class="tc-today-line" style="left:${todayLeft}px;height:100%;"></div>`;
+    html += `<div class="tc-today-label" style="left:${todayLeft + 4}px;">今天</div>`;
+  }
+
+  // Person bars
+  const totalContentHeight = visibleTasks.length * ROW_HEIGHT;
+  let barsHtml = '';
+
+  // Collect bar positions for SVG arrows
+  const barPositions = [];
+
+  visibleTasks.forEach(({ task, depth }, idx) => {
+    const dates = isParentTask(task) ? getTaskDates(task) : { start: parseDate(task.startDate), end: parseDate(task.endDate) };
+    const bar = calcBarPos(dates.start, dates.end, dayWidth, minDate);
+    if (!bar) return;
+
+    const rowTop = idx * ROW_HEIGHT;
+    const isParent = isParentTask(task);
+    const isCrit = task._isCritical;
+    const isMile = isMilestone(task) && !isParent;
+    const inRange = !isParent && !isCrit && isInDateRange(task);
+    const pri = task.priority || 'medium';
+    const priClass = isCrit ? 'bar-critical' : ('bar-' + pri);
+
+    barPositions.push({ task, rowTop, bar, isParent, isCrit, isMile });
+
+    const barHeight = isParent ? 24 : 20;
+    const barTop = (ROW_HEIGHT - barHeight) / 2;
+
+    if (isMile) {
+      // Milestone diamond
+      const diamondCenter = bar.left + bar.width / 2;
+      const mileClass = isCrit ? 'bar-critical' : ('bar-' + pri);
+      barsHtml += `<div class="milestone-wrap" data-id="${task.id}" style="left:${diamondCenter - 7}px;top:${rowTop + (ROW_HEIGHT - 14) / 2}px;width:14px;height:14px;">
+        <div class="milestone-diamond ${mileClass}${selectedTaskId === task.id ? ' selected' : ''}${inRange ? ' bar-today-range' : ''}"></div>
+      </div>`;
+    } else {
+      // Normal bar
+      const progress = isParent ? getParentProgress(task.id) : task.progress;
+      const labelW = bar.width - 12;
+      const showLabel = labelW > 50;
+      const selClass = selectedTaskId === task.id ? ' selected' : '';
+
+      barsHtml += `<div class="gantt-bar-row" style="top:${rowTop}px;width:${totalWidth}px;">
+        <div class="gantt-bar ${priClass}${isParent ? ' parent-bar' : ''}${selClass}${inRange ? ' bar-today-range' : ''}" data-id="${task.id}" style="left:${bar.left}px;width:${bar.width}px;">
+          <div class="bar-progress" style="width:${progress}%;"></div>
+          <span class="bar-label">${showLabel ? task.name : ''}</span>
+        </div>
+      </div>`;
+    }
+  });
+
+  html += barsHtml;
+
+  // Empty state
+  if (visibleTasks.length === 0) {
+    html += `<div class="empty-state">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="8" y="16" width="48" height="38" rx="3"/>
+        <line x1="16" y1="28" x2="48" y2="28"/>
+        <line x1="16" y1="36" x2="40" y2="36"/>
+        <line x1="16" y1="44" x2="36" y2="44"/>
+      </svg>
+      <p>${tasks.length === 0 ? '暂无任务，点击工具栏"添加任务"开始' : '无匹配任务'}</p>
+    </div>`;
+  }
+
+  tc.innerHTML = html;
+  tc.style.width = totalWidth + 'px';
+  // 增加底部留白，防止最底部的任务紧贴边缘
+  tc.style.minHeight = Math.max(totalContentHeight, 200) + BREATHING_ROOM + 'px';
+
+  // Attach events to bars
+  tc.querySelectorAll('.gantt-bar, .milestone-wrap').forEach(el => {
+    el.addEventListener('click', () => {
+      selectTask(el.dataset.id);
+    });
+    el.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      openEditModal(el.dataset.id);
+    });
+  });
+
+  // SVG dependency arrows (after bars are in DOM)
+  renderDependencyArrows(barPositions, totalWidth, totalContentHeight);
+}
+
+function renderDependencyArrows(barPositions, totalWidth, totalHeight) {
+  const tc = timelineContent;
+  let svg = tc.querySelector('.dep-svg');
+  if (!svg) {
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('dep-svg');
+    tc.appendChild(svg);
+
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    defs.innerHTML = `
+      <marker id="arrow-fs" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+        <polygon points="0 0, 6 2.5, 0 5" fill="#94a3b8" />
+      </marker>
+      <marker id="arrow-fs-critical" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+        <polygon points="0 0, 6 2.5, 0 5" fill="#e74c5e" />
+      </marker>`;
+    svg.appendChild(defs);
+  }
+
+  svg.setAttribute('width', totalWidth);
+  svg.setAttribute('height', totalHeight);
+  svg.style.width = totalWidth + 'px';
+  svg.style.height = totalHeight + 'px';
+
+  // Clear old paths
+  svg.querySelectorAll('.dep-path').forEach(p => p.remove());
+
+  const posMap = {};
+  barPositions.forEach(bp => { posMap[bp.task.id] = bp; });
+
+  barPositions.forEach(bp => {
+    const t = bp.task;
+    if (!t.predecessors || t.predecessors.length === 0) return;
+    t.predecessors.forEach(pid => {
+      const predBP = posMap[pid];
+      if (!predBP) return;
+
+      const x1 = predBP.bar.left + predBP.bar.width;
+      const y1 = predBP.rowTop + ROW_HEIGHT / 2;
+      const x2 = bp.bar.left;
+      const y2 = bp.rowTop + ROW_HEIGHT / 2;
+      const isCrit = t._isCritical || predBP.task._isCritical;
+      const gap = 12;
+      let d;
+      if (Math.abs(y2 - y1) < 4) {
+        d = `M ${x1} ${y1} L ${x2} ${y2}`;
+      } else if (x2 > x1 + gap * 2) {
+        const midX = (x1 + x2) / 2;
+        d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+      } else {
+        const x_out = x1 + gap;
+        const x_in = x2 - gap;
+        const y_mid = (y1 + y2) / 2;
+        d = `M ${x1} ${y1} L ${x_out} ${y1} L ${x_out} ${y_mid} L ${x_in} ${y_mid} L ${x_in} ${y2} L ${x2} ${y2}`;
+      }
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.classList.add('dep-path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', isCrit ? '#e74c5e' : '#94a3b8');
+      path.setAttribute('stroke-width', isCrit ? '2' : '1.5');
+      path.setAttribute('stroke-dasharray', isCrit ? '4,2' : 'none');
+      path.setAttribute('marker-end', isCrit ? 'url(#arrow-fs-critical)' : 'url(#arrow-fs)');
+      svg.appendChild(path);
+    });
+  });
+}
+
+// ============================================================
+//  选择 / 交互
+// ============================================================
+function selectTask(id) {
+  // Deselect previous
+  if (selectedTaskId) {
+    taskList.querySelector(`[data-id="${selectedTaskId}"]`)?.classList.remove('selected');
+    timelineContent.querySelector(`.gantt-bar[data-id="${selectedTaskId}"]`)?.classList.remove('selected');
+    timelineContent.querySelector(`.milestone-wrap[data-id="${selectedTaskId}"] .milestone-diamond`)?.classList.remove('selected');
+  }
+  selectedTaskId = id;
+  // Select new
+  if (id) {
+    const row = taskList.querySelector(`[data-id="${id}"]`);
+    if (row) {
+      row.classList.add('selected');
+      row.scrollIntoView({ block: 'nearest' });
+    }
+    const bar = timelineContent.querySelector(`.gantt-bar[data-id="${id}"]`);
+    if (bar) bar.classList.add('selected');
+    const diamond = timelineContent.querySelector(`.milestone-wrap[data-id="${id}"] .milestone-diamond`);
+    if (diamond) diamond.classList.add('selected');
+  }
+}
+
+// ============================================================
+//  滚动同步
+// ============================================================
+function syncScrollLeft() {
+  timelineHeader.style.transform = `translateX(-${rightBody.scrollLeft}px)`;
+}
+
+function syncScrollTop() {
+  leftBody.scrollTop = rightBody.scrollTop;
+}
+
+function syncScrollToday() {
+  const dayWidth = getDayWidth();
+  const { minDate } = calcTimelineRange();
+  const today = getToday();
+  const left = daysBetween(minDate, today) * dayWidth;
+  const vw = rightBody.clientWidth;
+  if (left > 0) rightBody.scrollLeft = Math.max(0, left - vw * 0.8);
+}
+
+// ============================================================
+//  任务操作
+// ============================================================
+function addTask(parentId) {
+  const id = genId();
+  pendingNewTask = { id, parentId: parentId || null };
+  openEditModal(id);
+}
+
+function deleteTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const subtreeIds = getSubtreeIds(id);
+  const hasChildren = subtreeIds.length > 1;
+  let msg = `确定要删除「${task.name}」吗？`;
+  if (hasChildren) msg += `<br><br>该任务及其所有子任务（共 ${subtreeIds.length} 项）将被<b>永久删除</b>。`;
+  else msg += ' 此操作不可恢复。';
+  showConfirm('确认删除', msg, () => {
+    pushUndo();
+    tasks = tasks.filter(t => !subtreeIds.includes(t.id));
+    if (selectedTaskId && subtreeIds.includes(selectedTaskId)) selectedTaskId = null;
+    // Remove this id from predecessors
+    tasks.forEach(t => {
+      t.predecessors = (t.predecessors || []).filter(pid => !subtreeIds.includes(pid));
+    });
+    saveData();
+    render();
+    showToast('已删除', 'success');
+  }, true);
+}
+
+function indentTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const siblings = getDirectChildren(task.parentId);
+  const idx = siblings.indexOf(task);
+  if (idx <= 0) { showToast('已是第一个任务，无法缩进', 'error'); return; }
+  // Check max depth (10 levels max)
+  const depth = getMaxDepthOfTask(id);
+  if (depth >= 10) { showToast('已达到最大层次深度（10层），无法继续缩进', 'error'); return; }
+  const newParent = siblings[idx - 1];
+  const subtreeIds = getSubtreeIds(id);
+  const taskAndKids = tasks.filter(t => subtreeIds.includes(t.id));
+  const others = tasks.filter(t => !subtreeIds.includes(t.id));
+  // Find insert position: after newParent's last descendant
+  const newParentSubtree = getSubtreeIds(newParent.id);
+  const lastIdx = Math.max(...newParentSubtree.map(sid => others.findIndex(t => t.id === sid)));
+  pushUndo();
+  task.parentId = newParent.id;
+  // Reinsert at correct position
+  const insertAt = lastIdx + 1;
+  others.splice(insertAt, 0, ...taskAndKids);
+  tasks = others;
+  saveData();
+  render();
+  showToast('任务已缩进', 'success');
+}
+
+function outdentTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task || !task.parentId) { showToast('已是顶层任务', 'error'); return; }
+  const parent = tasks.find(t => t.id === task.parentId);
+  if (!parent) { task.parentId = null; saveData(); render(); return; }
+  const subtreeIds = getSubtreeIds(id);
+  const taskAndKids = tasks.filter(t => subtreeIds.includes(t.id));
+  const others = tasks.filter(t => !subtreeIds.includes(t.id));
+  const parentIdx = others.indexOf(parent);
+  pushUndo();
+  task.parentId = parent.parentId || null;
+  others.splice(parentIdx + 1, 0, ...taskAndKids);
+  tasks = others;
+  saveData();
+  render();
+  showToast('任务已取消缩进', 'success');
+}
+
+function moveTask(id, direction) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const siblings = getSiblings(id);
+  const idx = siblings.indexOf(task);
+  if (direction === 'up' && idx <= 0) return;
+  if (direction === 'down' && idx >= siblings.length - 1) return;
+  const subtreeIds = getSubtreeIds(id);
+  const taskAndKids = tasks.filter(t => subtreeIds.includes(t.id));
+  const others = tasks.filter(t => !subtreeIds.includes(t.id));
+
+  if (direction === 'up') {
+    const target = siblings[idx - 1];
+    const targetSubtree = getSubtreeIds(target.id);
+    const firstTargetIdx = Math.min(...targetSubtree.map(sid => others.findIndex(t => t.id === sid)));
+    others.splice(firstTargetIdx, 0, ...taskAndKids);
+  } else {
+    const target = siblings[idx + 1];
+    const targetSubtree = getSubtreeIds(target.id);
+    const lastTargetIdx = Math.max(...targetSubtree.map(sid => others.findIndex(t => t.id === sid)));
+    others.splice(lastTargetIdx + 1, 0, ...taskAndKids);
+  }
+  pushUndo();
+  tasks = others;
+  saveData();
+  render();
+}
+
+// ============================================================
+//  编辑模态框
+// ============================================================
+let editingId = null;
+
+function openEditModal(id) {
+  editingId = id;
+  const t = tasks.find(x => x.id === id);
+  const isNew = !t;
+  const isParent = t && isParentTask(t);
+
+  $('modalTitle').textContent = isNew ? '添加任务' : '编辑任务';
+  $('editId').value = id || '';
+
+  if (isNew) {
+    $('editName').value = '新任务';
+    $('editStartDate').value = toDateStr(getToday());
+    $('editEndDate').value = toDateStr(addMonths(getToday(), 1));
+    $('editProgress').value = 0;
+    $('editPriority').value = 'medium';
+    $('editAssignee').value = '';
+    $('editNotes').value = '';
+    $('editIsMilestone').checked = false;
+    $('parentDateHint').style.display = 'none';
+    $('editStartDate').disabled = false;
+    $('editEndDate').disabled = false;
+    $('editProgress').disabled = false;
+  } else {
+    $('editName').value = t.name || '';
+    $('editPriority').value = t.priority || 'medium';
+    $('editStartDate').value = t.startDate || '';
+    $('editEndDate').value = t.endDate || '';
+    $('editProgress').value = t.progress || 0;
+    $('editAssignee').value = t.assignee || '';
+    $('editNotes').value = t.notes || '';
+    $('editIsMilestone').checked = isMilestone(t) && !isParent;
+    if (isParent) {
+      $('parentDateHint').style.display = 'block';
+      $('editStartDate').disabled = true;
+      $('editEndDate').disabled = true;
+      $('editProgress').disabled = true;
+    } else {
+      $('parentDateHint').style.display = 'none';
+      $('editStartDate').disabled = false;
+      $('editEndDate').disabled = false;
+      $('editProgress').disabled = false;
+    }
+  }
+
+  // Render predecessor list
+  renderPredList(id, isNew);
+
+  $('editModal').classList.add('show');
+  $('editName').focus();
+  $('editName').select();
+}
+
+function closeEditModal() {
+  $('editModal').classList.remove('show');
+  editingId = null;
+  pendingNewTask = null;
+}
+
+// 实时更新日期逻辑
+function updateDatesFromPredecessors() {
+  // 如果是父任务，日期由子任务决定，不自动修改
+  const isParent = editingId ? isParentTask(tasks.find(t => t.id === editingId)) : false;
+  if (isParent) return;
+
+  const checkedBoxes = $('predList').querySelectorAll('input[type="checkbox"]:checked');
+  if (checkedBoxes.length === 0) return; // 没有勾选前置任务，不调整
+
+  let maxEnd = null;
+  checkedBoxes.forEach(cb => {
+    const pt = tasks.find(t => t.id === cb.value);
+    if (pt && pt.endDate) {
+      const end = parseDate(pt.endDate);
+      if (end && (!maxEnd || end > maxEnd)) {
+        maxEnd = end;
+      }
+    }
+  });
+
+  if (maxEnd) {
+    // 开始日期 = 最晚结束日期 + 1天
+    const nextStart = new Date(maxEnd);
+    nextStart.setDate(nextStart.getDate() + 1);
+    const newStartDateStr = toDateStr(nextStart);
+
+    $('editStartDate').value = newStartDateStr;
+
+    // 如果是里程碑，结束日期 = 开始日期
+    if ($('editIsMilestone').checked) {
+      $('editEndDate').value = newStartDateStr;
+    } else {
+      // 结束日期 = 开始日期 + 1个月
+      const nextEnd = new Date(nextStart);
+      nextEnd.setMonth(nextEnd.getMonth() + 1);
+      $('editEndDate').value = toDateStr(nextEnd);
+    }
+  }
+}
+
+function renderPredList(taskId, isNew) {
+  const container = $('predList');
+  container.innerHTML = '';
+  const otherTasks = tasks.filter(t => t.id !== taskId);
+  if (otherTasks.length === 0) {
+    container.innerHTML = '<div style="padding:8px;font-size:12px;color:var(--gray-400);text-align:center;">没有其他任务可以设置依赖</div>';
+    return;
+  }
+  otherTasks.forEach(t => {
+    const item = document.createElement('label');
+    item.className = 'pred-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = t.id;
+    const currentTask = tasks.find(x => x.id === taskId);
+    if (currentTask && currentTask.predecessors && currentTask.predecessors.includes(t.id)) {
+      cb.checked = true;
+    }
+    
+    // 绑定 change 事件，实时联动更新日期
+    cb.addEventListener('change', () => {
+      updateDatesFromPredecessors();
+    });
+
+    const label = document.createElement('span');
+    label.textContent = (t._wbs || '') + ' ' + t.name;
+    item.appendChild(cb);
+    item.appendChild(label);
+    container.appendChild(item);
+  });
+}
+
+function collectFormData() {
+  const name = $('editName').value.trim();
+  if (!name) { showToast('请输入任务名称', 'error'); return null; }
+  let startDate = $('editStartDate').value;
+  let endDate = $('editEndDate').value;
+  const isParent = editingId ? isParentTask(tasks.find(t => t.id === editingId)) : false;
+
+  // For parent tasks, dates come from children
+  if (!isParent) {
+    if (!startDate) { showToast('请选择开始日期', 'error'); return null; }
+    if (!endDate) { showToast('请选择完成日期', 'error'); return null; }
+    if (endDate < startDate) { showToast('完成日期不能早于开始日期', 'error'); return null; }
+  }
+
+  const progress = parseInt($('editProgress').value) || 0;
+  const isMile = $('editIsMilestone').checked;
+  const id = $('editId').value || genId();
+
+  // If milestone, set end = start
+  if (isMile && startDate) endDate = startDate;
+
+  // Collect predecessors
+  const preds = [];
+  $('predList').querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+    preds.push(cb.value);
+  });
+
+  return {
+    id,
+    name,
+    startDate: isParent ? (tasks.find(t => t.id === editingId)?.startDate || startDate) : startDate,
+    endDate: isParent ? (tasks.find(t => t.id === editingId)?.endDate || endDate) : endDate,
+    progress: isParent ? (tasks.find(t => t.id === editingId)?.progress || 0) : Math.min(Math.max(progress, 0), 100),
+    priority: $('editPriority').value,
+    predecessors: preds,
+    parentId: null, // preserved below
+    expanded: true,
+    notes: $('editNotes').value.trim(),
+    assignee: $('editAssignee').value.trim()
+  };
+}
+
+function saveFormData() {
+  const data = collectFormData();
+  if (!data) return;
+
+  const idx = tasks.findIndex(t => t.id === data.id);
+
+  // Auto-adjust start date based on predecessors
+  const startAdjusted = recalcStartFromPredecessors(data);
+
+  if (idx >= 0) {
+    const oldTask = tasks[idx];
+    data.parentId = oldTask.parentId;
+    pushUndo();
+
+    // Check successor impact
+    const successors = tasks.filter(t => t.predecessors && t.predecessors.includes(data.id));
+    const datesChanged = oldTask.startDate !== data.startDate || oldTask.endDate !== data.endDate;
+    const predsChanged = JSON.stringify((oldTask.predecessors||[]).sort()) !== JSON.stringify((data.predecessors||[]).sort());
+
+    if ((datesChanged || predsChanged) && successors.length > 0) {
+      let warnMsg = `<b>「${oldTask.name}」</b>有 <b>${successors.length}</b> 个后续任务依赖于此任务：<br>
+        <span style="font-size:11px;color:var(--gray-500);">${successors.map(st => {
+          const pt = tasks.find(t => t.id === st.id);
+          return (pt ? (pt._wbs||'') + ' ' + pt.name : st.name);
+        }).join('、')}</span><br><br>`;
+      let dayShift = 0;
+      if (datesChanged) {
+        // FS 依赖：使用结束日期偏移（后续任务关心前置何时完成）
+        const oldEnd = parseDate(oldTask.endDate);
+        const newEnd = parseDate(data.endDate);
+        if (oldEnd && newEnd) dayShift = daysBetween(oldEnd, newEnd);
+        warnMsg += `📅 完成日期已变更，偏移 <b>${Math.abs(dayShift)}</b> 天${dayShift > 0 ? '（推迟）' : '（提前）'}。`;
+      }
+      if (predsChanged) {
+        warnMsg += `${datesChanged ? '<br>' : ''}🔗 前置依赖关系已变更。`;
+      }
+      warnMsg += `<br><br><span style="font-size:12px;color:var(--gray-500);">请选择后续任务的处理方式：</span>`;
+
+      const doSave = (shiftSuccessors) => {
+        if (shiftSuccessors && dayShift !== 0) {
+          // 递归级联：将偏移传播到所有后置任务及其后置任务
+          const visited = new Set();
+          function cascadeShift(taskId) {
+            if (visited.has(taskId)) return;
+            visited.add(taskId);
+            const subs = tasks.filter(t => t.predecessors && t.predecessors.includes(taskId));
+            subs.forEach(sub => {
+              const sStart = parseDate(sub.startDate);
+              const sEnd = parseDate(sub.endDate);
+              if (sStart) {
+                const ns = new Date(sStart);
+                ns.setDate(ns.getDate() + dayShift);
+                sub.startDate = toDateStr(ns);
+              }
+              if (sEnd) {
+                const ne = new Date(sEnd);
+                ne.setDate(ne.getDate() + dayShift);
+                sub.endDate = toDateStr(ne);
+              }
+              cascadeShift(sub.id);
+            });
+          }
+          cascadeShift(data.id);
+        }
+        tasks[idx] = data;
+        saveData();
+        closeEditModal();
+        render();
+        showToast('保存成功' + (startAdjusted ? '，起始日期已根据前置任务自动调整' : ''), 'success');
+      };
+
+      showConfirmEx('关联任务调整',
+        warnMsg,
+        dayShift !== 0 ? '保存并同步调整' : '确定保存',
+        '仅保存',
+        () => doSave(true),
+        () => doSave(false),
+        null,
+        true
+      );
+      return;
+    }
+
+    tasks[idx] = data;
+  } else {
+    // New task from pendingNewTask or created inline
+    data.parentId = pendingNewTask ? pendingNewTask.parentId : null;
+    pushUndo();
+    if (selectedTaskId) {
+      const subtreeIds = getSubtreeIds(selectedTaskId);
+      const lastSubIdx = Math.max(...subtreeIds.map(id => tasks.findIndex(t => t.id === id)));
+      tasks.splice(lastSubIdx + 1, 0, data);
+    } else {
+      tasks.push(data);
+    }
+    selectedTaskId = data.id;
+    pendingNewTask = null;
+  }
+  saveData();
+  closeEditModal();
+  render();
+  showToast('保存成功' + (startAdjusted ? '，起始日期已根据前置任务自动调整' : ''), 'success');
+}
+
+// ============================================================
+//  数据管理
+// ============================================================
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      tasks = JSON.parse(raw);
+      if (!Array.isArray(tasks)) throw 'invalid';
+    } else {
+      tasks = JSON.parse(JSON.stringify(SAMPLE_TASKS));
+      saveData();
+    }
+  } catch(e) {
+    tasks = JSON.parse(JSON.stringify(SAMPLE_TASKS));
+    saveData();
+  }
+}
+
+function saveData() {
+  const clean = tasks.map(t => {
+    const { _wbs, _isCritical, _es, _ef, _ls, _lf, _float, _duration, _dayStart, _dayEnd, ...rest } = t;
+    return rest;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+}
+
+function exportData() {
+  const clean = tasks.map(t => {
+    const { _wbs, _isCritical, _es, _ef, _ls, _lf, _float, _duration, _dayStart, _dayEnd, ...rest } = t;
+    return rest;
+  });
+  const exportObj = {
+    version: 3,
+    exportedAt: getToday().toISOString().slice(0, 10),
+    ui: {
+      panelWidth: uiState.panelWidth || 580,
+      colWbs: uiState.col_wbs || 34,
+      colDate: uiState.col_startDate || 88,
+      colDur: uiState.col_dur || 44,
+      colPred: uiState.col_pred || 80,
+      zoomIndex: zoomIndex,
+      scrollLeft: rightBody.scrollLeft
+    },
+    tasks: clean
+  };
+  const json = JSON.stringify(exportObj, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `项目甘特图_${getToday().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('导出成功', 'success');
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const raw = JSON.parse(e.target.result);
+      let taskData, uiData;
+      // v2 format: { version, ui, tasks }
+      if (raw && (raw.version === 2 || raw.version === 3) && Array.isArray(raw.tasks)) {
+        taskData = raw.tasks;
+        uiData = raw.ui || null;
+      } else if (Array.isArray(raw)) {
+        // v1 legacy format: just tasks array
+        taskData = raw;
+        uiData = null;
+      } else {
+        throw new Error('数据格式无效：无法识别的文件结构');
+      }
+      for (const t of taskData) {
+        if (!t.name || !t.startDate) throw new Error('数据格式无效：缺少名称或开始日期');
+      }
+      showConfirm('导入数据',
+        `确定要导入 <b>${taskData.length}</b> 条任务记录吗？<br><br>当前数据将被<b>覆盖</b>，建议先导出备份。`,
+        () => {
+          pushUndo();
+          tasks = taskData;
+          tasks.forEach(t => { if (t.expanded === undefined) t.expanded = true; });
+          // Restore UI state from import if present
+          if (uiData) {
+            if (uiData.panelWidth) uiState.panelWidth = uiData.panelWidth;
+            if (uiData.colWbs) uiState.col_wbs = uiData.colWbs;
+            if (uiData.colDate) { uiState.col_startDate = uiData.colDate; uiState.col_endDate = uiData.colDate; }
+            if (uiData.colDur) uiState.col_dur = uiData.colDur;
+            if (uiData.colPred) uiState.col_pred = uiData.colPred;
+            if (uiData.zoomIndex != null) zoomIndex = uiData.zoomIndex;
+            applyUiState();
+            saveUiState();
+          }
+          saveData();
+          updateZoomLabel();
+          render();
+          // Restore scroll position after render
+          if (uiData && uiData.scrollLeft != null) {
+            requestAnimationFrame(() => { rightBody.scrollLeft = uiData.scrollLeft; });
+          }
+          showToast(`已导入 ${taskData.length} 条记录`, 'success');
+        },
+        true
+      );
+    } catch(err) {
+      showToast(err.message || '导入失败：文件格式错误', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+//  确认对话框
+// ============================================================
+let confirmCallback = null;
+let confirmMiddleCallback = null;
+
+function showConfirm(title, msg, cb, msgIsHtml) {
+  $('confirmTitle').textContent = title;
+  if (msgIsHtml) $('confirmMsg').innerHTML = msg;
+  else $('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  confirmMiddleCallback = null;
+  $('confirmMiddle').style.display = 'none';
+  $('confirmOk').textContent = '确定';
+  $('confirmDlg').classList.add('show');
+}
+
+function showConfirmEx(title, msg, okText, middleText, onOk, onMiddle, onCancel, msgIsHtml) {
+  $('confirmTitle').textContent = title;
+  if (msgIsHtml) $('confirmMsg').innerHTML = msg;
+  else $('confirmMsg').textContent = msg;
+  confirmCallback = onOk;
+  confirmMiddleCallback = onMiddle;
+  $('confirmOk').textContent = okText || '确定';
+  if (middleText) {
+    $('confirmMiddle').textContent = middleText;
+    $('confirmMiddle').style.display = 'inline-flex';
+    $('confirmMiddle').className = 'btn btn-primary';
+  } else {
+    $('confirmMiddle').style.display = 'none';
+  }
+  // Store cancel callback for when user clicks Cancel or overlay
+  $('confirmDlg')._onCancel = onCancel || null;
+  $('confirmDlg').classList.add('show');
+}
+
+// ============================================================
+//  Toast
+// ============================================================
+let toastTimer = null;
+
+function showToast(msg, type) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (type ? ' ' + type : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ============================================================
+//  底部状态栏 (时间与Tips)
+// ============================================================
+function initStatusBar() {
+  // 1. 实时时间
+  const timeEl = $('statusTime');
+  function updateTime() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    timeEl.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss} 星期${days[now.getDay()]}`;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // 2. 轮播Tips
+  const tipsEl = $('statusTips');
+  const TIPS = [
+    "💡 提示：请养成随时点击右上角「导出」备份数据的习惯，以防数据丢失。",
+    "💡 提示：按住 Ctrl 或 Cmd 键并滚动鼠标滚轮，可以快速缩放时间轴。",
+    "💡 提示：双击左侧任务行或右侧甘特条，可以快速打开任务编辑窗口。",
+    "⚡ 提示：带有闪电图标的任务属于「关键路径」，其延迟会影响整个项目的工期。",
+    "◆ 提示：菱形图标代表「里程碑」，通常用于标记项目的重要节点或阶段成果。",
+    "💡 提示：在编辑任务时勾选前置任务，系统会自动计算并顺延开始时间。",
+    "💡 提示：在右侧甘特图区域按住鼠标左键拖动，可以快速左右平移时间轴。"
+  ];
+  let tipIndex = 0;
+  
+  function rotateTips() {
+    tipsEl.classList.add('fade');
+    setTimeout(() => {
+      tipIndex = (tipIndex + 1) % TIPS.length;
+      tipsEl.innerHTML = TIPS[tipIndex];
+      tipsEl.classList.remove('fade');
+    }, 500); // 配合 CSS 的 0.5s 过渡动画
+  }
+  
+  tipsEl.innerHTML = TIPS[0];
+  setInterval(rotateTips, 15000); // 每15秒切换一次
+}
+
+// ============================================================
+//  事件绑定
+// ============================================================
+function initEvents() {
+  // Scroll sync
+  rightBody.addEventListener('scroll', () => {
+    syncScrollLeft();
+    syncScrollTop();
+  });
+
+  // Left panel scroll sync → right follows
+  leftBody.addEventListener('scroll', () => {
+    rightBody.scrollTop = leftBody.scrollTop;
+  });
+
+  // Search
+  let searchTimer;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      filterQuery = searchInput.value;
+      render();
+    }, 200);
+  });
+
+  // --- 面板拖动 ---
+  const panelHandle = $('panelResizeHandle');
+  panelHandle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    panelResizeData = { startX: e.clientX, startWidth: leftPanel.offsetWidth };
+    panelHandle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  // --- 列宽拖动 ---
+  document.querySelectorAll('.col-resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const col = handle.dataset.col;
+      const parentSpan = handle.parentElement;
+      colResizeData = { col, startX: e.clientX, startWidth: parentSpan.offsetWidth };
+      handle.classList.add('active');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+  });
+
+  // Zoom — 带视口中心保持
+  function doZoom(fn) {
+    const oldDw = getDayWidth();
+    const vw = rightBody.clientWidth;
+    // 视口中心距离时间轴最左侧的像素距离
+    const centerX = rightBody.scrollLeft + vw / 2;
+    // 视口中心距离时间轴最左侧的天数（浮点数）
+    const centerDays = centerX / oldDw;
+
+    fn();
+
+    // 缩放后新的每天像素宽度
+    const newDw = getDayWidth();
+    // 视口中心距离时间轴最左侧的新像素距离
+    const newCenterX = centerDays * newDw;
+    
+    // 同步设置 scrollLeft，避免闪烁和计算延迟
+    rightBody.scrollLeft = Math.max(0, newCenterX - vw / 2);
+    // 手动同步表头位置
+    syncScrollLeft();
+  }
+
+  $('zoomOutBtn').addEventListener('click', () => {
+    if (zoomIndex > 0) { zoomIndex--; updateZoomLabel(); doZoom(() => render()); }
+  });
+  $('zoomInBtn').addEventListener('click', () => {
+    if (zoomIndex < ZOOM_LEVELS.length - 1) { zoomIndex++; updateZoomLabel(); doZoom(() => render()); }
+  });
+
+  // Ctrl+Wheel zoom
+  rightBody.addEventListener('wheel', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      let changed = false;
+      if (e.deltaY < 0 && zoomIndex < ZOOM_LEVELS.length - 1) { zoomIndex++; changed = true; }
+      else if (e.deltaY > 0 && zoomIndex > 0) { zoomIndex--; changed = true; }
+      if (changed) { updateZoomLabel(); doZoom(() => render()); }
+    }
+  }, { passive: false });
+
+  // Today button
+  $('todayBtn').addEventListener('click', syncScrollToday);
+
+  // Task operations
+  $('addBtn').addEventListener('click', () => {
+    // 有选中任务时创建同级任务，否则创建顶层任务
+    const siblingParent = selectedTaskId ? (tasks.find(t => t.id === selectedTaskId)?.parentId || null) : null;
+    addTask(siblingParent);
+  });
+  $('addSubBtn').addEventListener('click', () => {
+    if (selectedTaskId) {
+      addTask(selectedTaskId);
+    } else {
+      showToast('请先选择一个父任务', 'error');
+    }
+  });
+  $('deleteBtn').addEventListener('click', () => {
+    if (selectedTaskId) deleteTask(selectedTaskId);
+    else showToast('请先选择一个任务', 'error');
+  });
+  $('indentBtn').addEventListener('click', () => {
+    if (selectedTaskId) indentTask(selectedTaskId);
+    else showToast('请先选择一个任务', 'error');
+  });
+  $('outdentBtn').addEventListener('click', () => {
+    if (selectedTaskId) outdentTask(selectedTaskId);
+    else showToast('请先选择一个任务', 'error');
+  });
+  $('moveUpBtn').addEventListener('click', () => {
+    if (selectedTaskId) moveTask(selectedTaskId, 'up');
+    else showToast('请先选择一个任务', 'error');
+  });
+  $('moveDownBtn').addEventListener('click', () => {
+    if (selectedTaskId) moveTask(selectedTaskId, 'down');
+    else showToast('请先选择一个任务', 'error');
+  });
+
+  // Undo / Redo
+  $('undoBtn').addEventListener('click', undo);
+  $('redoBtn').addEventListener('click', redo);
+
+  // Import / Export
+  $('exportBtn').addEventListener('click', exportData);
+  $('importBtn').addEventListener('click', () => $('fileInput').click());
+  $('fileInput').addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      importData(e.target.files[0]);
+      e.target.value = '';
+    }
+  });
+
+  // Modal events
+  $('modalClose').addEventListener('click', closeEditModal);
+  $('modalCancel').addEventListener('click', closeEditModal);
+  $('modalSave').addEventListener('click', saveFormData);
+
+  // Milestone checkbox → auto set dates
+  $('editIsMilestone').addEventListener('change', () => {
+    if ($('editIsMilestone').checked && $('editStartDate').value) {
+      $('editEndDate').value = $('editStartDate').value;
+      $('editEndDate').disabled = true;
+    } else {
+      if (!$('editStartDate').disabled) $('editEndDate').disabled = false;
+    }
+  });
+  // When start date changes and milestone is checked, sync end date
+  $('editStartDate').addEventListener('change', () => {
+    if ($('editIsMilestone').checked && $('editStartDate').value) {
+      $('editEndDate').value = $('editStartDate').value;
+    }
+  });
+
+  // Confirm dialog
+  $('confirmCancel').addEventListener('click', () => {
+    $('confirmDlg').classList.remove('show');
+    const oc = $('confirmDlg')._onCancel;
+    $('confirmDlg')._onCancel = null;
+    if (oc) oc();
+    confirmCallback = null;
+    confirmMiddleCallback = null;
+  });
+  $('confirmMiddle').addEventListener('click', () => {
+    $('confirmDlg').classList.remove('show');
+    if (confirmMiddleCallback) { confirmMiddleCallback(); }
+    confirmCallback = null;
+    confirmMiddleCallback = null;
+    $('confirmDlg')._onCancel = null;
+  });
+  $('confirmOk').addEventListener('click', () => {
+    $('confirmDlg').classList.remove('show');
+    if (confirmCallback) { confirmCallback(); }
+    confirmCallback = null;
+    confirmMiddleCallback = null;
+    $('confirmDlg')._onCancel = null;
+  });
+
+  // Close modals on overlay click
+  $('editModal').addEventListener('click', (e) => {
+    if (e.target === $('editModal')) closeEditModal();
+  });
+  $('confirmDlg').addEventListener('click', (e) => {
+    if (e.target === $('confirmDlg')) {
+      $('confirmDlg').classList.remove('show');
+      const oc = $('confirmDlg')._onCancel;
+      $('confirmDlg')._onCancel = null;
+      if (oc) oc();
+      confirmCallback = null;
+      confirmMiddleCallback = null;
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if ($('editModal').classList.contains('show')) closeEditModal();
+      else if ($('confirmDlg').classList.contains('show')) {
+        $('confirmDlg').classList.remove('show');
+        const oc = $('confirmDlg')._onCancel;
+        $('confirmDlg')._onCancel = null;
+        if (oc) oc();
+        confirmCallback = null;
+        confirmMiddleCallback = null;
+      }
+    }
+    if (e.key === 'Enter' && $('editModal').classList.contains('show') && (e.ctrlKey || e.metaKey)) {
+      saveFormData();
+    }
+    if (e.key === 'Delete' && !$('editModal').classList.contains('show') && selectedTaskId) {
+      deleteTask(selectedTaskId);
+    }
+    // Undo/Redo
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      if (!$('editModal').classList.contains('show')) undo();
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      if (!$('editModal').classList.contains('show')) redo();
+    }
+    if (e.key === 'Tab' && $('editModal').classList.contains('show')) {
+      // Allow normal tab navigation in modal
+    }
+  });
+
+  // Right-body click-drag horizontal scroll
+  rightBody.addEventListener('mousedown', (e) => {
+    const target = e.target;
+    if (target === timelineContent || target.closest('.tc') === target || target === rightBody || target.closest('.gantt-bar-row') === target) {
+      rightBody._isDragging = true;
+      rightBody._dragStartX = e.clientX;
+      rightBody._dragStartScroll = rightBody.scrollLeft;
+      rightBody.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    // Timeline click-drag scroll
+    if (rightBody._isDragging) {
+      const dx = e.clientX - rightBody._dragStartX;
+      rightBody.scrollLeft = rightBody._dragStartScroll - dx;
+    }
+    // Panel width resize
+    if (panelResizeData) {
+      const delta = e.clientX - panelResizeData.startX;
+      const newW = Math.max(300, Math.min(window.innerWidth - 200, panelResizeData.startWidth + delta));
+      uiState.panelWidth = newW;
+      leftPanel.style.width = newW + 'px';
+      saveUiState();
+    }
+    // Column width resize
+    if (colResizeData) {
+      const delta = e.clientX - colResizeData.startX;
+      const cfg = COL_CONFIG[colResizeData.col];
+      if (cfg) {
+        const newW = Math.max(cfg.min, colResizeData.startWidth + delta);
+        document.documentElement.style.setProperty(cfg.cssVar, newW + 'px');
+        uiState['col_' + colResizeData.col] = newW;
+        saveUiState();
+      }
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (rightBody._isDragging) {
+      rightBody._isDragging = false;
+      rightBody.style.cursor = '';
+    }
+    if (panelResizeData) {
+      panelResizeData = null;
+      $('panelResizeHandle')?.classList.remove('dragging');
+    }
+    if (colResizeData) {
+      colResizeData = null;
+      document.querySelectorAll('.col-resize-handle').forEach(h => h.classList.remove('active'));
+    }
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+
+  // Window resize
+  window.addEventListener('resize', () => { render(); });
+}
+
+function updateZoomLabel() {
+  const pct = Math.round((getDayWidth() / ZOOM_LEVELS[DEFAULT_ZOOM_INDEX]) * 100);
+  zoomLabel.textContent = pct + '%';
+}
+
+// ============================================================
+//  初始化
+// ============================================================
+function init() {
+  loadData();
+  loadUiState();
+  updateZoomLabel();
+  render();
+  initStatusBar();
+  requestAnimationFrame(() => syncScrollToday());
+  initEvents();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
