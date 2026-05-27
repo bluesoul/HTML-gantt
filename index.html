@@ -49,7 +49,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
 
-/* ===== 工具栏 Toolbar ===== */
+/* ===== 工具栏 ===== */
 .toolbar { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #fff; border-bottom: 1px solid var(--gray-200); flex-shrink: 0; z-index: 100; flex-wrap: wrap; }
 .toolbar-title { font-size: 17px; font-weight: 700; color: var(--gray-800); white-space: nowrap; }
 .toolbar-title span { color: var(--primary); }
@@ -76,10 +76,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .zoom-label { font-size: 11px; color: var(--gray-500); min-width: 40px; text-align: center; }
 .btn:disabled { opacity: .4; cursor: default; pointer-events: none; }
 
-/* ===== 主区域 Main ===== */
+/* ===== 主区域 ===== */
 .main { flex: 1; display: flex; overflow: hidden; }
 
-/* ===== 左侧任务列表 Left panel ===== */
+/* ===== 左侧任务列表 ===== */
 .left-panel { width: var(--panel-width); flex-shrink: 0; display: flex; flex-direction: column; border-right: none; background: #fff; z-index: 10; position: relative; }
 .left-header { height: var(--header-height); flex-shrink: 0; display: flex; align-items: center; padding: 0 8px; border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-500); letter-spacing: .3px; gap: 0; user-select: none; }
 .left-header > [class^="col-"] { position: relative; }
@@ -110,7 +110,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .priority-dot.high { background: var(--p-high); }
 .priority-dot.critical { background: var(--p-critical); }
 
-/* 列宽拖动条 Column resize handle */
+/* 列宽拖动条 */
 .col-resize-handle {
   position: absolute; right: -2px; top: 0; width: 5px; height: 100%;
   cursor: col-resize; z-index: 10;
@@ -119,7 +119,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .col-resize-handle:hover,
 .col-resize-handle.active { background: var(--primary); opacity: .4; }
 
-/* 面板拖动条 Panel resize handle */
+/* 面板拖动条 */
 .panel-resize-handle {
   width: 4px; flex-shrink: 0; cursor: col-resize;
   background: transparent; z-index: 20; transition: background .15s;
@@ -132,17 +132,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 
 .separator-row { height: 22px; display: flex; align-items: center; padding: 0 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-400); }
 
-/* ===== 右侧甘特图 Right panel ===== */
+/* ===== 右侧甘特图 ===== */
 .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .right-header { height: var(--header-height); flex-shrink: 0; overflow: hidden; border-bottom: 1px solid var(--gray-200); position: relative; background: #fff; z-index: 5; }
 .right-body { flex: 1; overflow: auto; position: relative; }
 
-/* 时间轴头部 Timeline header */
+/* 时间轴头部 */
 .th { position: absolute; top: 0; left: 0; height: 100%; pointer-events: none; }
 .th-year { position: absolute; top: 0; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--gray-500); border-right: 1px solid var(--gray-200); }
 .th-month { position: absolute; top: 22px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gray-500); border-right: 1px solid var(--gray-100); }
 
-/* 时间轴内容 Timeline body */
+/* 时间轴内容 */
 .tc { position: relative; min-height: 100%; }
 .tc-grid-line { position: absolute; top: 0; width: 1px; background: var(--gray-100); pointer-events: none; }
 .tc-grid-line.month { background: var(--gray-200); }
@@ -152,7 +152,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .tc-today-line { position: absolute; top: 0; width: 2px; background: var(--today-color); pointer-events: none; z-index: 5; }
 .tc-today-label { position: absolute; top: 0; font-size: 10px; color: var(--today-color); font-weight: 600; padding: 1px 4px; pointer-events: none; z-index: 6; background: rgba(255,255,255,.85); border-radius: 0 0 3px 3px; }
 
-/* 甘特条 Gantt bars */
+/* 甘特条 */
 .gantt-bar-row { position: absolute; left: 0; height: var(--row-height); display: flex; align-items: center; border-bottom: 1px solid var(--gray-100); pointer-events: none; }
 .gantt-bar { position: absolute; height: 20px; border-radius: 4px; cursor: pointer; pointer-events: auto; transition: box-shadow .15s, filter .12s; display: flex; align-items: center; padding: 0 6px; font-size: 10px; color: #fff; font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 4px; }
 .gantt-bar:hover { filter: brightness(1.08); box-shadow: 0 2px 8px rgba(79,110,247,0.3); }
@@ -168,17 +168,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .gantt-bar.parent-bar.bar-high { background: linear-gradient(135deg, var(--p-high), #fbbf24); }
 .gantt-bar.parent-bar.bar-critical { background: linear-gradient(135deg, var(--p-critical), #f87171); }
 
-/* 当前日期范围高亮 Today range highlight */
+/* 当前日期范围高亮 */
 .gantt-bar.bar-today-range { outline: 2px solid var(--today-color) !important; outline-offset: 1px; border-radius: 4px; }
 .gantt-bar.bar-today-range.selected { outline: 2px solid var(--gray-800) !important; outline-offset: 1px; }
 .milestone-diamond.bar-today-range { box-shadow: 0 0 0 2px var(--today-color) !important; }
 .gantt-bar.bar-critical.bar-today-range { outline: 2px solid #fff !important; outline-offset: 1px; }
 
-/* 进度填充 Progress fill */
+/* 进度填充 */
 .bar-progress { position: absolute; top: 0; left: 0; height: 15%; border-radius: 2px; background: rgba(50,242,100,.8); pointer-events: none; }
 .bar-label { position: relative; z-index: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
 
-/* 里程碑 Milestones */
+/* 里程碑 */
 .milestone-wrap { position: absolute; pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .milestone-diamond { width: 14px; height: 14px; transform: rotate(45deg); border-radius: 2px; transition: box-shadow .15s; }
 .milestone-diamond.bar-low { background: var(--p-low); }
@@ -188,21 +188,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .milestone-diamond:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .milestone-diamond.selected { box-shadow: 0 0 0 2px var(--gray-800); }
 
-/* 依赖箭头 SVG Dependency arrows */
+/* 依赖箭头 SVG */
 .dep-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 3; }
 
-/* ===== 空状态 Empty state ===== */
+/* ===== 空状态 ===== */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; color: var(--gray-400); gap: 12px; }
 .empty-state svg { width: 64px; height: 64px; opacity: .4; }
 .empty-state p { font-size: 14px; }
 
-/* ===== 状态栏 Status Bar (底部 Bottom) ===== */
+/* ===== 状态栏 (底部) ===== */
 .status-bar { height: 40px; flex-shrink: 0; background: #fff; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 12px; color: var(--gray-500); z-index: 100; }
 .status-time { font-family: 'SF Mono', Monaco, monospace; font-weight: 500; letter-spacing: 0.5px; }
 .status-tips { display: flex; align-items: center; transition: opacity 0.5s ease; }
 .status-tips.fade { opacity: 0; }
 
-/* ===== 模态框 Modal ===== */
+/* ===== 模态框 ===== */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
 .modal { background: #fff; border-radius: var(--radius); width: 540px; max-width: 94vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); transform: translateY(12px); transition: transform .2s; }
@@ -226,13 +226,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .form-select { padding: 7px 10px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; cursor: pointer; }
 .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,110,247,0.12); }
 
-/* 前置任务选择列表 Predecessor list */
+/* 前置任务选择列表 */
 .pred-list { display: flex; flex-direction: column; gap: 3px; max-height: 120px; overflow-y: auto; border: 1px solid var(--gray-100); border-radius: var(--radius-sm); padding: 4px; }
 .pred-item { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 3px; font-size: 12px; color: var(--gray-600); cursor: pointer; transition: background .1s; }
 .pred-item:hover { background: var(--gray-50); }
 .pred-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--primary); cursor: pointer; }
 
-/* ===== 确认对话框 Confirm ===== */
+/* ===== 确认对话框 ===== */
 .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .confirm-overlay.show { opacity: 1; pointer-events: auto; }
 .confirm-box { background: #fff; border-radius: var(--radius); width: 380px; max-width: 90vw; padding: 24px; box-shadow: var(--shadow-lg); text-align: center; }
@@ -240,7 +240,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .confirm-box p { font-size: 13px; color: var(--gray-500); margin-bottom: 18px; }
 .confirm-box .buttons { display: flex; gap: 8px; justify-content: center; }
 
-/* ===== Toast 提示 Toast ===== */
+/* ===== Toast ===== */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gray-800); color: #fff; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; z-index: 2000; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.success { background: #10b981; }
@@ -257,7 +257,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
   .toolbar-stats { font-size: 11px; }
   .modal { width: 100%; max-width: 100%; max-height: 100vh; border-radius: 0; }
   .status-bar { padding: 0 10px; font-size: 11px; }
-  .status-tips { display: none; /* 手机端隐藏tips Mobile: hide tips */ }
+  .status-tips { display: none; /* 手机端隐藏tips以节省空间 */ }
 }
 </style>
 </head>
@@ -265,54 +265,50 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 
 <div class="app" style="display:flex;flex-direction:column;height:100vh;">
 
-<!-- 工具栏 Toolbar -->
+<!-- 工具栏 -->
 <div class="toolbar">
-  <div class="toolbar-title" id="toolbarTitle"></div>
+  <div class="toolbar-title">📊 项目<span>甘特图</span></div>
   <div class="toolbar-stats" id="stats"></div>
 
   <div class="toolbar-divider"></div>
 
   <div class="toolbar-group">
-    <input type="text" id="searchInput" data-i18n="searchPlaceholder" />
+    <input type="text" id="searchInput" placeholder="搜索任务..." />
   </div>
 
   <div class="toolbar-divider"></div>
 
   <div class="toolbar-group">
-    <button class="btn btn-icon btn-ghost" id="zoomOutBtn" data-i18n-title="zoomOut">−</button>
+    <button class="btn btn-icon btn-ghost" id="zoomOutBtn" title="缩小">−</button>
     <span class="zoom-label" id="zoomLabel">100%</span>
-    <button class="btn btn-icon btn-ghost" id="zoomInBtn" data-i18n-title="zoomIn">+</button>
+    <button class="btn btn-icon btn-ghost" id="zoomInBtn" title="放大">+</button>
   </div>
   <div class="toolbar-group">
-    <button class="btn btn-sm" id="todayBtn" data-i18n="today">📅 今天</button>
+    <button class="btn btn-sm" id="todayBtn">📅 今天</button>
   </div>
 
   <div class="toolbar-divider"></div>
 
-  <button class="btn btn-primary btn-sm" id="addBtn" data-i18n="addTask">＋ 添加任务</button>
-  <button class="btn btn-sm" id="addSubBtn" data-i18n="addSubTask">＋ 子任务</button>
-  <button class="btn btn-danger btn-sm" id="deleteBtn" data-i18n="delete">🗑 删除</button>
+  <button class="btn btn-primary btn-sm" id="addBtn">＋ 添加任务</button>
+  <button class="btn btn-sm" id="addSubBtn">＋ 子任务</button>
+  <button class="btn btn-danger btn-sm" id="deleteBtn">🗑 删除</button>
 
   <div class="toolbar-divider"></div>
 
-  <button class="btn btn-sm" id="indentBtn" data-i18n-title="indent" data-i18n="indent">↦ 缩进</button>
-  <button class="btn btn-sm" id="outdentBtn" data-i18n-title="outdent" data-i18n="outdent">↤ 取消缩进</button>
-  <button class="btn btn-sm" id="moveUpBtn" data-i18n-title="moveUp">↑</button>
-  <button class="btn btn-sm" id="moveDownBtn" data-i18n-title="moveDown">↓</button>
+  <button class="btn btn-sm" id="indentBtn" title="降级">↦ 缩进</button>
+  <button class="btn btn-sm" id="outdentBtn" title="升级">↤ 取消缩进</button>
+  <button class="btn btn-sm" id="moveUpBtn" title="上移">↑</button>
+  <button class="btn btn-sm" id="moveDownBtn" title="下移">↓</button>
 
   <div class="toolbar-divider"></div>
 
-  <button class="btn btn-sm" id="undoBtn" data-i18n-title="undo" data-i18n="undo">↩ 撤销</button>
-  <button class="btn btn-sm" id="redoBtn" data-i18n-title="redo" data-i18n="redo">↪ 重做</button>
+  <button class="btn btn-sm" id="undoBtn" title="撤销 (Ctrl+Z)">↩ 撤销</button>
+  <button class="btn btn-sm" id="redoBtn" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
 
   <div class="toolbar-divider"></div>
 
-  <button class="btn btn-sm" id="langBtn"></button>
-
-  <div class="toolbar-divider"></div>
-
-  <button class="btn btn-sm" id="importBtn" data-i18n="import">📂 导入</button>
-  <button class="btn btn-sm" id="exportBtn" data-i18n="export">💾 保存&导出</button>
+  <button class="btn btn-sm" id="importBtn">📂 导入</button>
+  <button class="btn btn-sm" id="exportBtn">💾 保存&导出</button>
   <input type="file" id="fileInput" accept=".json" style="display:none" />
 </div>
 
@@ -322,12 +318,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
   <div class="left-panel" id="leftPanel">
     <div class="left-header">
       <span style="width:16px;flex-shrink:0;"></span>
-      <span class="col-wbs" data-i18n="colWbs">WBS<span class="col-resize-handle" data-col="wbs"></span></span>
-      <span class="col-name" data-i18n="colTaskName">任务名称</span>
-      <span class="col-date" data-i18n="colStartDate">开始日期<span class="col-resize-handle" data-col="startDate"></span></span>
-      <span class="col-date" data-i18n="colEndDate">结束日期<span class="col-resize-handle" data-col="endDate"></span></span>
-      <span class="col-dur" data-i18n="colDuration">工期<span class="col-resize-handle" data-col="dur"></span></span>
-      <span class="col-pred" data-i18n="colPred">前置任务<span class="col-resize-handle" data-col="pred"></span></span>
+      <span class="col-wbs">WBS<span class="col-resize-handle" data-col="wbs"></span></span>
+      <span class="col-name">任务名称</span>
+      <span class="col-date">开始日期<span class="col-resize-handle" data-col="startDate"></span></span>
+      <span class="col-date">结束日期<span class="col-resize-handle" data-col="endDate"></span></span>
+      <span class="col-dur">工期<span class="col-resize-handle" data-col="dur"></span></span>
+      <span class="col-pred">前置任务<span class="col-resize-handle" data-col="pred"></span></span>
       <span class="col-dot"></span>
     </div>
     <div class="left-body" id="leftBody">
@@ -347,7 +343,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
   </div>
 </div>
 
-<!-- 底部状态栏 Status Bar -->
+<!-- 底部状态栏 -->
 <div class="status-bar">
   <div class="status-time" id="statusTime"></div>
   <div class="status-tips" id="statusTips"></div>
@@ -355,11 +351,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 
 </div>
 
-<!-- 编辑模态框 Edit Modal -->
+<!-- 编辑模态框 -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-header">
-      <span id="modalTitle" data-i18n="modalEditTitle">编辑任务</span>
+      <span id="modalTitle">编辑任务</span>
       <button class="modal-close" id="modalClose">&times;</button>
     </div>
     <div class="modal-body">
@@ -367,82 +363,82 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 
       <div class="form-row">
         <div class="form-group" style="flex:2;">
-          <label class="form-label" data-i18n="modalTaskName">任务名称 *</label>
-          <input class="form-input" id="editName" data-i18n="taskNamePlaceholder" />
+          <label class="form-label">任务名称 *</label>
+          <input class="form-input" id="editName" placeholder="请输入任务名称" />
         </div>
         <div class="form-group" style="flex:0 0 100px;">
-          <label class="form-label" data-i18n="priorityLabel">优先级</label>
+          <label class="form-label">优先级</label>
           <select class="form-select" id="editPriority" style="width:100%;">
-            <option value="low" data-i18n="priorityLow">低</option>
-            <option value="medium" selected data-i18n="priorityMedium">中</option>
-            <option value="high" data-i18n="priorityHigh">高</option>
-            <option value="critical" data-i18n="priorityCritical">关键</option>
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+            <option value="critical">关键</option>
           </select>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" data-i18n="modalStartDate">开始日期 *</label>
+          <label class="form-label">开始日期 *</label>
           <input class="form-input" id="editStartDate" type="date" />
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="modalEndDate">完成日期 *</label>
+          <label class="form-label">完成日期 *</label>
           <input class="form-input" id="editEndDate" type="date" />
         </div>
         <div class="form-group" style="flex:0 0 70px;">
-          <label class="form-label" data-i18n="progressLabel">进度</label>
+          <label class="form-label">进度</label>
           <input class="form-input" id="editProgress" type="number" min="0" max="100" value="0" style="text-align:center;" />
         </div>
       </div>
 
       <div class="form-group" id="parentDateHint" style="display:none;">
-        <div style="padding:6px 10px;background:var(--gray-50);border-radius:4px;font-size:12px;color:var(--gray-500);" data-i18n="parentDateHint">
+        <div style="padding:6px 10px;background:var(--gray-50);border-radius:4px;font-size:12px;color:var(--gray-500);">
           ⓘ 此任务包含子任务，日期和进度已从子任务自动计算（只读）
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" data-i18n="assigneeLabel">负责人</label>
-          <input class="form-input" id="editAssignee" data-i18n="assigneePlaceholder" />
+          <label class="form-label">负责人</label>
+          <input class="form-input" id="editAssignee" placeholder="负责人姓名" />
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="milestoneLabel">是否里程碑</label>
+          <label class="form-label">是否里程碑</label>
           <label class="form-checkbox" style="margin-top:6px;">
             <input type="checkbox" id="editIsMilestone" />
-            <span data-i18n="milestoneCheckbox">该任务是一个里程碑（单日节点）</span>
+            该任务是一个里程碑（单日节点）
           </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" data-i18n="predLabel">前置任务（完成-开始依赖）</label>
+        <label class="form-label">前置任务（完成-开始依赖）</label>
         <div class="pred-list" id="predList"></div>
-        <div class="form-hint" data-i18n="predHint">勾选需要在此任务之前完成的任务</div>
+        <div class="form-hint">勾选需要在此任务之前完成的任务</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" data-i18n="notesLabel">备注</label>
-        <textarea class="form-input" id="editNotes" rows="2" data-i18n="notesPlaceholder" style="resize:vertical;"></textarea>
+        <label class="form-label">备注</label>
+        <textarea class="form-input" id="editNotes" rows="2" placeholder="可选备注信息" style="resize:vertical;"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" id="modalCancel" data-i18n="modalCancel">取消</button>
-      <button class="btn btn-primary" id="modalSave" data-i18n="modalSave">保存</button>
+      <button class="btn" id="modalCancel">取消</button>
+      <button class="btn btn-primary" id="modalSave">保存</button>
     </div>
   </div>
 </div>
 
-<!-- 确认对话框 Confirm Dialog -->
+<!-- 确认对话框 -->
 <div class="confirm-overlay" id="confirmDlg">
   <div class="confirm-box">
-    <h3 id="confirmTitle" data-i18n="confirmTitle">确认操作</h3>
-    <p id="confirmMsg" data-i18n="confirmMsg">确定要执行此操作吗？</p>
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmMsg">确定要执行此操作吗？</p>
     <div class="buttons">
-      <button class="btn" id="confirmCancel" data-i18n="confirmCancel">取消</button>
+      <button class="btn" id="confirmCancel">取消</button>
       <button class="btn" id="confirmMiddle" style="display:none;"></button>
-      <button class="btn btn-danger" id="confirmOk" data-i18n="confirmOk">确定</button>
+      <button class="btn btn-danger" id="confirmOk">确定</button>
     </div>
   </div>
 </div>
@@ -452,405 +448,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 
 <script>
 // ============================================================
-//  i18n 国际化 Chinese / English
-// ============================================================
-const LOCALE_STORAGE_KEY = 'gantt_locale';
-let currentLang = localStorage.getItem(LOCALE_STORAGE_KEY) || 'zh';
-
-const LANG = {
-  zh: {
-    // Toolbar
-    projectTitle: '📊 项目甘特图',
-    searchPlaceholder: '搜索任务...',
-    zoomOut: '缩小',
-    zoomIn: '放大',
-    today: '📅 今天',
-    addTask: '＋ 添加任务',
-    addSubTask: '＋ 子任务',
-    delete: '🗑 删除',
-    indent: '↦ 缩进',
-    outdent: '↤ 取消缩进',
-    moveUp: '↑ 上移',
-    moveDown: '↓ 下移',
-    undo: '↩ 撤销',
-    redo: '↪ 重做',
-    import: '📂 导入',
-    export: '💾 保存&导出',
-    langSwitch: '🇨🇳 EN',
-
-    // Left header
-    colWbs: 'WBS',
-    colTaskName: '任务名称',
-    colStartDate: '开始日期',
-    colEndDate: '结束日期',
-    colDuration: '工期',
-    colPred: '前置任务',
-
-    // Stats
-    statTasks: '任务',
-    statMilestones: '里程碑',
-    statCritical: '关键路径',
-
-    // Empty state
-    emptyNoTasks: '暂无任务，点击"添加任务"开始',
-    emptyNoMatch: '无匹配任务',
-
-    // Today label
-    todayLabel: '今天',
-
-    // Modal
-    modalEditTitle: '编辑任务',
-    modalAddTitle: '添加任务',
-    modalTaskName: '任务名称 *',
-    taskNamePlaceholder: '请输入任务名称',
-    priorityLabel: '优先级',
-    priorityLow: '低',
-    priorityMedium: '中',
-    priorityHigh: '高',
-    priorityCritical: '关键',
-    modalStartDate: '开始日期 *',
-    modalEndDate: '完成日期 *',
-    progressLabel: '进度',
-    parentDateHint: 'ⓘ 此任务包含子任务，日期和进度已从子任务自动计算（只读）',
-    assigneeLabel: '负责人',
-    assigneePlaceholder: '负责人姓名',
-    milestoneLabel: '是否里程碑',
-    milestoneCheckbox: '该任务是一个里程碑（单日节点）',
-    predLabel: '前置任务（完成-开始依赖）',
-    predHint: '勾选需要在此任务之前完成的任务',
-    notesLabel: '备注',
-    notesPlaceholder: '可选备注信息',
-    modalCancel: '取消',
-    modalSave: '保存',
-    noOtherTasks: '没有其他任务可以设置依赖',
-
-    // Confirm dialog
-    confirmTitle: '确认操作',
-    confirmMsg: '确定要执行此操作吗？',
-    confirmOk: '确定',
-    confirmCancel: '取消',
-
-    // New task
-    newTaskName: '新任务',
-
-    // Delete
-    deleteConfirm: '确定要删除「{name}」吗？',
-    deleteChildrenWarning: '该任务及其所有子任务（共 {count} 项）将被<b>永久删除</b>。',
-    deleteIrreversible: '此操作不可恢复。',
-
-    // Toast
-    undoSuccess: '已撤销',
-    redoSuccess: '已重做',
-    noUndo: '没有可撤销的操作',
-    noRedo: '没有可重做的操作',
-    deleted: '已删除',
-    saveSuccess: '保存成功',
-    startAdjusted: '，起始日期已根据前置任务自动调整',
-    indentSuccess: '任务已缩进',
-    outdentSuccess: '任务已取消缩进',
-    alreadyFirst: '已是第一个任务，无法缩进',
-    alreadyTop: '已是顶层任务',
-    maxDepthReached: '已达到最大层次深度（10层），无法继续缩进',
-    exportSuccess: '导出成功',
-    importConfirmTitle: '导入数据',
-    importConfirm: '确定要导入 <b>{count}</b> 条任务记录吗？<br><br>当前数据将被<b>覆盖</b>，建议先导出备份。',
-    importSuccess: '已导入 {count} 条记录',
-    importInvalid: '数据格式无效：无法识别的文件结构',
-    importMissingFields: '数据格式无效：缺少名称或开始日期',
-    importFailed: '导入失败：文件格式错误',
-    validationNameRequired: '请输入任务名称',
-    validationStartDate: '请选择开始日期',
-    validationEndDate: '请选择完成日期',
-    validationDateOrder: '完成日期不能早于开始日期',
-    selectTaskFirst: '请先选择一个任务',
-    selectParentFirst: '请先选择一个父任务',
-    cycleDependency: '检测到循环依赖，无法计算关键路径',
-
-    // Successor warning
-    successorWarning: '<b>「{name}」</b>有 <b>{count}</b> 个后续任务依赖于此任务：<br><span style="font-size:11px;color:var(--gray-500);">{successors}</span><br><br>',
-    dateChanged: '📅 完成日期已变更，偏移 <b>{days}</b> 天{dir}。',
-    dateDelay: '（推迟）',
-    dateAdvance: '（提前）',
-    predChanged: '🔗 前置依赖关系已变更。',
-    successorChoice: '<br><br><span style="font-size:12px;color:var(--gray-500);">请选择后续任务的处理方式：</span>',
-    successorSaveSync: '保存并同步调整',
-    successorSaveOnly: '仅保存',
-    successorTitle: '关联任务调整',
-
-    // Tips
-    tips: [
-      '💡 提示：请养成随时点击右上角「导出」备份数据的习惯，以防数据丢失。',
-      '💡 提示：按住 Ctrl 或 Cmd 键并滚动鼠标滚轮，可以快速缩放时间轴。',
-      '💡 提示：双击左侧任务行或右侧甘特条，可以快速打开任务编辑窗口。',
-      '⚡ 提示：带有闪电图标的任务属于「关键路径」，其延迟会影响整个项目的工期。',
-      '◆ 提示：菱形图标代表「里程碑」，通常用于标记项目的重要节点或阶段成果。',
-      '💡 提示：在编辑任务时勾选前置任务，系统会自动计算并顺延开始时间。',
-      '💡 提示：在右侧甘特图区域按住鼠标左键拖动，可以快速左右平移时间轴。'
-    ],
-
-    // Weekday
-    weekdays: ['日', '一', '二', '三', '四', '五', '六'],
-    weekPrefix: '星期',
-
-    // Timeline
-    yearFormat: '{year}年',
-    monthFormat: '{month}月',
-    monthNames: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-
-    // Duration
-    daysSuffix: '天',
-
-    // Badges
-    badgeMilestone: '里程碑：该任务为单日节点',
-    badgeCritical: '关键路径：此任务延迟将影响项目总工期',
-
-    // Export filename
-    exportPrefix: '项目甘特图_',
-
-    // Year label tooltip-style
-    yearLabel: '{year}年'
-  },
-
-  en: {
-    // Toolbar
-    projectTitle: '📊 Project Gantt',
-    searchPlaceholder: 'Search tasks...',
-    zoomOut: 'Zoom Out',
-    zoomIn: 'Zoom In',
-    today: '📅 Today',
-    addTask: '＋ Add Task',
-    addSubTask: '＋ Subtask',
-    delete: '🗑 Delete',
-    indent: '↦ Indent',
-    outdent: '↤ Outdent',
-    moveUp: '↑ Up',
-    moveDown: '↓ Down',
-    undo: '↩ Undo',
-    redo: '↪ Redo',
-    import: '📂 Import',
-    export: '💾 Export',
-    langSwitch: '🇨🇳 中文',
-
-    // Left header
-    colWbs: 'WBS',
-    colTaskName: 'Task Name',
-    colStartDate: 'Start',
-    colEndDate: 'End',
-    colDuration: 'Dur',
-    colPred: 'Pred',
-
-    // Stats
-    statTasks: 'Tasks',
-    statMilestones: 'Milestones',
-    statCritical: 'Critical',
-
-    // Empty state
-    emptyNoTasks: 'No tasks yet. Click "Add Task" to start',
-    emptyNoMatch: 'No matching tasks',
-
-    // Today label
-    todayLabel: 'Today',
-
-    // Modal
-    modalEditTitle: 'Edit Task',
-    modalAddTitle: 'Add Task',
-    modalTaskName: 'Task Name *',
-    taskNamePlaceholder: 'Enter task name',
-    priorityLabel: 'Priority',
-    priorityLow: 'Low',
-    priorityMedium: 'Medium',
-    priorityHigh: 'High',
-    priorityCritical: 'Critical',
-    modalStartDate: 'Start Date *',
-    modalEndDate: 'End Date *',
-    progressLabel: 'Progress',
-    parentDateHint: 'ⓘ This task has subtasks; dates & progress are auto-calculated (read-only)',
-    assigneeLabel: 'Assignee',
-    assigneePlaceholder: 'Assignee name',
-    milestoneLabel: 'Milestone',
-    milestoneCheckbox: 'This is a milestone (single-day node)',
-    predLabel: 'Predecessors (FS dependency)',
-    predHint: 'Check tasks that must finish before this one',
-    notesLabel: 'Notes',
-    notesPlaceholder: 'Optional notes',
-    modalCancel: 'Cancel',
-    modalSave: 'Save',
-    noOtherTasks: 'No other tasks for dependencies',
-
-    // Confirm dialog
-    confirmTitle: 'Confirm',
-    confirmMsg: 'Are you sure?',
-    confirmOk: 'OK',
-    confirmCancel: 'Cancel',
-
-    // New task
-    newTaskName: 'New Task',
-
-    // Delete
-    deleteConfirm: 'Are you sure to delete "{name}"?',
-    deleteChildrenWarning: 'This task and its {count} subtasks will be <b>permanently deleted</b>.',
-    deleteIrreversible: 'This action cannot be undone.',
-
-    // Toast
-    undoSuccess: 'Undone',
-    redoSuccess: 'Redone',
-    noUndo: 'Nothing to undo',
-    noRedo: 'Nothing to redo',
-    deleted: 'Deleted',
-    saveSuccess: 'Saved successfully',
-    startAdjusted: ', start date adjusted per predecessors',
-    indentSuccess: 'Task indented',
-    outdentSuccess: 'Task outdented',
-    alreadyFirst: 'Already first task, cannot indent',
-    alreadyTop: 'Already a top-level task',
-    maxDepthReached: 'Max depth (10 levels) reached, cannot indent',
-    exportSuccess: 'Exported successfully',
-    importConfirmTitle: 'Import Data',
-    importConfirm: 'Import <b>{count}</b> tasks?<br><br>Current data will be <b>overwritten</b>. Export a backup first.',
-    importSuccess: 'Imported {count} records',
-    importInvalid: 'Invalid data format: unrecognized file structure',
-    importMissingFields: 'Invalid data: missing name or start date',
-    importFailed: 'Import failed: invalid file format',
-    validationNameRequired: 'Please enter a task name',
-    validationStartDate: 'Please select a start date',
-    validationEndDate: 'Please select an end date',
-    validationDateOrder: 'End date cannot be before start date',
-    selectTaskFirst: 'Please select a task first',
-    selectParentFirst: 'Please select a parent task first',
-    cycleDependency: 'Circular dependency detected, cannot calculate critical path',
-
-    // Successor warning
-    successorWarning: '<b>"{name}"</b> has <b>{count}</b> successor(s):<br><span style="font-size:11px;color:var(--gray-500);">{successors}</span><br><br>',
-    dateChanged: '📅 Dates changed, shift <b>{days}</b> day(s) {dir}.',
-    dateDelay: '(delayed)',
-    dateAdvance: '(earlier)',
-    predChanged: '🔗 Predecessor relationships changed.',
-    successorChoice: '<br><br><span style="font-size:12px;color:var(--gray-500);">Choose how to handle successors:</span>',
-    successorSaveSync: 'Save & shift successors',
-    successorSaveOnly: 'Save only',
-    successorTitle: 'Adjust Successors',
-
-    // Tips
-    tips: [
-      '💡 Tip: Regularly click "Export" to back up your data and prevent loss.',
-      '💡 Tip: Hold Ctrl/Cmd and scroll to quickly zoom the timeline.',
-      '💡 Tip: Double-click a task row or Gantt bar to open the editor.',
-      '⚡ Tip: ⚡ icons mark the "critical path" — delays here affect the whole project.',
-      '◆ Tip: ◆ diamonds mark "milestones" — key project checkpoints.',
-      '💡 Tip: Checking predecessors in the editor auto-adjusts start dates.',
-      '💡 Tip: Drag left-click on the Gantt area to pan the timeline horizontally.'
-    ],
-
-    // Weekday
-    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    weekPrefix: '',
-
-    // Timeline
-    yearFormat: '{year}',
-    monthFormat: '{month}',
-    monthNames: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-
-    // Duration
-    daysSuffix: 'd',
-
-    // Badges
-    badgeMilestone: 'Milestone: single-day task',
-    badgeCritical: 'Critical path: delay impacts project finish',
-
-    // Export filename
-    exportPrefix: 'ProjectGantt_',
-
-    // Year label
-    yearLabel: '{year}'
-  }
-};
-
-function _t(key, ...args) {
-  let val = (LANG[currentLang] || LANG.zh)[key];
-  if (val === undefined) val = key;
-  if (args.length > 0) {
-    for (let i = 0; i < args.length; i++) {
-      val = val.replace(`{${i}}`, args[i]);
-    }
-  }
-  return val;
-}
-
-// Named-parameter replacement: _tp(key, {name: 'foo', count: 5})
-function _tp(key, params) {
-  let val = (LANG[currentLang] || LANG.zh)[key];
-  if (val === undefined) val = key;
-  if (params) {
-    for (const [k, v] of Object.entries(params)) {
-      val = val.replace(`{${k}}`, v);
-    }
-  }
-  return val;
-}
-
-function getMonthName(monthIndex) {
-  const names = (LANG[currentLang] || LANG.zh).monthNames;
-  return names[monthIndex] || (monthIndex + 1);
-}
-
-function getWeekdayName(dayIndex) {
-  const names = (LANG[currentLang] || LANG.zh).weekdays;
-  return names[dayIndex] || '';
-}
-
-function getWeekPrefix() {
-  return (LANG[currentLang] || LANG.zh).weekPrefix;
-}
-
-function getYearLabel(year) {
-  return _tp('yearFormat', { year });
-}
-
-function getDurationText(days) {
-  return days + _t('daysSuffix');
-}
-
-function switchLang() {
-  currentLang = currentLang === 'zh' ? 'en' : 'zh';
-  localStorage.setItem(LOCALE_STORAGE_KEY, currentLang);
-  applyLanguage();
-  // Re-render the whole app
-  render();
-  initStatusBar();
-}
-
-function applyLanguage() {
-  // Update HTML lang attribute
-  document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
-  // Update all data-i18n elements
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = _t(key);
-    } else if (el.tagName === 'OPTION') {
-      el.textContent = _t(key);
-    } else {
-      el.textContent = _t(key);
-    }
-  });
-  // Update data-i18n-title elements
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    const key = el.dataset.i18nTitle;
-    el.title = _t(key);
-  });
-  // Special: toolbar title with colored span
-  const titleEl = $('toolbarTitle');
-  if (currentLang === 'zh') {
-    titleEl.innerHTML = '📊 项目<span>甘特图</span>';
-  } else {
-    titleEl.innerHTML = '📊 Project <span>Gantt</span>';
-  }
-  // Update lang button text
-  $('langBtn').textContent = _t('langSwitch');
-}
-
-// ============================================================
-//  数据层 Data Layer
+//  数据层
 // ============================================================
 const STORAGE_KEY = 'gantt_project_data';
 
@@ -859,11 +457,11 @@ const ZOOM_LEVELS = [
   0.61, 0.78, 1.0,  1.3,  1.7,  2.1,  2.7,  3.5,  4.5,  5.8,
   7.4,  9.5,  12,   16,   20,   26
 ];
-// 默认缩放索引 17 对应 3.5 像素/天，365天约为 1277 像素 Default zoom index 17 ≈ 3.5px/day
+// 默认缩放索引 17 对应 3.5 像素/天，365天约为 1277 像素，刚好铺满主流屏幕视口（约1年范围）
 const DEFAULT_ZOOM_INDEX = 17;
 const ROW_HEIGHT = 30;
 const HEADER_HEIGHT = 48;
-// 底部留白高度 Bottom breathing room
+// 底部留白高度，防止最底部的任务紧贴边缘
 const BREATHING_ROOM = 60; 
 
 const SAMPLE_TASKS = [
@@ -943,21 +541,21 @@ function pushUndo() {
 }
 
 function undo() {
-  if (undoStack.length === 0) { showToast(_t('noUndo'), 'error'); return; }
+  if (undoStack.length === 0) { showToast('没有可撤销的操作', 'error'); return; }
   redoStack.push(JSON.stringify(tasks));
   tasks = JSON.parse(undoStack.pop());
   saveData();
   render();
-  showToast(_t('undoSuccess'), 'success');
+  showToast('已撤销', 'success');
 }
 
 function redo() {
-  if (redoStack.length === 0) { showToast(_t('noRedo'), 'error'); return; }
+  if (redoStack.length === 0) { showToast('没有可重做的操作', 'error'); return; }
   undoStack.push(JSON.stringify(tasks));
   tasks = JSON.parse(redoStack.pop());
   saveData();
   render();
-  showToast(_t('redoSuccess'), 'success');
+  showToast('已重做', 'success');
 }
 
 /** 根据前置任务自动调整起始日期：取所有前置任务结束日期的最大值+1天 */
@@ -982,7 +580,7 @@ function recalcStartFromPredecessors(taskData) {
 }
 
 // ============================================================
-//  工具函数 Utilities
+//  工具函数
 // ============================================================
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
@@ -1019,7 +617,7 @@ function getToday() {
 function getDayWidth() { return ZOOM_LEVELS[zoomIndex] || ZOOM_LEVELS[DEFAULT_ZOOM_INDEX]; }
 
 // ============================================================
-//  树结构工具 Tree helpers
+//  树结构工具
 // ============================================================
 function buildChildrenMap() {
   const map = { __root__: [] };
@@ -1100,7 +698,7 @@ function getMaxDepthOfTask(taskId) {
 }
 
 // ============================================================
-//  WBS 生成 WBS generation
+//  WBS 生成
 // ============================================================
 function rebuildWbs() {
   const childrenMap = buildChildrenMap();
@@ -1115,7 +713,7 @@ function rebuildWbs() {
 }
 
 // ============================================================
-//  父任务日期自动计算 Parent task auto-date
+//  父任务日期自动计算
 // ============================================================
 function isParentTask(task) {
   if (!task || !task.id) return false;
@@ -1185,7 +783,7 @@ function isInDateRange(task) {
 }
 
 // ============================================================
-//  关键路径计算 Critical path
+//  关键路径计算
 // ============================================================
 function getLeafTasks() {
   return tasks.filter(t => !isParentTask(t));
@@ -1240,7 +838,7 @@ function calcCriticalPath() {
   });
 
   const sorted = topologicalSort(leaves);
-  if (!sorted) { showToast(_t('cycleDependency'), 'error'); return; }
+  if (!sorted) { showToast('检测到循环依赖，无法计算关键路径', 'error'); return; }
 
   const leafMap = {};
   sorted.forEach(t => leafMap[t.id] = t);
@@ -1290,7 +888,7 @@ function calcCriticalPath() {
 }
 
 // ============================================================
-//  时间轴计算 Timeline
+//  时间轴计算
 // ============================================================
 function calcTimelineRange() {
   const today = getToday();
@@ -1322,7 +920,7 @@ function calcBarPos(start, end, dayWidth, rangeStart) {
 }
 
 // ============================================================
-//  渲染引擎 Renderer
+//  渲染引擎
 // ============================================================
 function render() {
   const dayWidth = getDayWidth();
@@ -1346,7 +944,6 @@ function render() {
     const hScrollbarHeight = rightBody.offsetHeight - rightBody.clientHeight;
     // 将左侧任务列表的底部 padding 设为 (留白高度 + 滚动条高度)
     // 这样左右两侧的 scrollHeight 将完美一致，彻底解决滚动错位问题
-    // Set paddingBottom so both panels have the same scrollHeight
     taskList.style.paddingBottom = (BREATHING_ROOM + (hScrollbarHeight > 0 ? hScrollbarHeight : 0)) + 'px';
   });
 }
@@ -1356,16 +953,16 @@ function renderStats() {
   const milestones = tasks.filter(t => isMilestone(t) && !isParentTask(t)).length;
   const criticalCount = tasks.filter(t => t._isCritical).length;
   stats.innerHTML = `
-    <span class="stat">${_t('statTasks')} <b>${total}</b></span>
-    <span class="stat">${_t('statMilestones')} <b style="color:var(--p-high)">${milestones}</b></span>
-    <span class="stat">${_t('statCritical')} <b style="color:var(--p-critical)">${criticalCount}</b></span>
+    <span class="stat">任务 <b>${total}</b></span>
+    <span class="stat">里程碑 <b style="color:var(--p-high)">${milestones}</b></span>
+    <span class="stat">关键路径 <b style="color:var(--p-critical)">${criticalCount}</b></span>
   `;
 }
 
 function renderTaskList(visibleTasks, hasFilter) {
   taskList.innerHTML = '';
   if (visibleTasks.length === 0) {
-    taskList.innerHTML = `<div style="padding:40px 14px;text-align:center;font-size:13px;color:var(--gray-400);">${tasks.length === 0 ? _t('emptyNoTasks') : _t('emptyNoMatch')}</div>`;
+    taskList.innerHTML = `<div style="padding:40px 14px;text-align:center;font-size:13px;color:var(--gray-400);">${tasks.length === 0 ? '暂无任务，点击"添加任务"开始' : '无匹配任务'}</div>`;
     return;
   }
 
@@ -1409,14 +1006,14 @@ function renderTaskList(visibleTasks, hasFilter) {
       const mb = document.createElement('span');
       mb.className = 'milestone-badge';
       mb.textContent = '◆';
-      mb.title = _t('badgeMilestone');
+      mb.title = '里程碑：该任务为单日节点';
       name.appendChild(mb);
     }
     if (task._isCritical) {
       const cb = document.createElement('span');
       cb.className = 'critical-badge';
       cb.textContent = '⚡';
-      cb.title = _t('badgeCritical');
+      cb.title = '关键路径：此任务延迟将影响项目总工期';
       name.appendChild(cb);
     }
     row.appendChild(name);
@@ -1447,7 +1044,7 @@ function renderTaskList(visibleTasks, hasFilter) {
     const dur = document.createElement('span');
     dur.className = 'col-dur';
     const d = calcDuration(task);
-    dur.textContent = d ? getDurationText(d) : '';
+    dur.textContent = d ? d + '天' : '';
     row.appendChild(dur);
 
     // Predecessors
@@ -1505,7 +1102,7 @@ function renderTimelineHeader(minDate, maxDate, dayWidth, totalWidth) {
     yearDiv.style.width = yg.width + 'px';
     const isFiveYear = Math.abs(yg.year - todayYear) % 5 === 0;
     if (showEveryYear || isFiveYear) {
-      yearDiv.textContent = getYearLabel(yg.year);
+      yearDiv.textContent = yg.year + '年';
       if (yg.width < 25) yearDiv.style.fontSize = '9px';
     }
     timelineHeader.appendChild(yearDiv);
@@ -1517,7 +1114,7 @@ function renderTimelineHeader(minDate, maxDate, dayWidth, totalWidth) {
         monthDiv.className = 'th-month';
         monthDiv.style.left = mLeft + 'px';
         monthDiv.style.width = m.width + 'px';
-        monthDiv.textContent = getMonthName(m.month);
+        monthDiv.textContent = (m.month + 1) + '月';
         if (m.width < 24) monthDiv.style.fontSize = '9px';
         if (m.width < 16) monthDiv.textContent = '';
         timelineHeader.appendChild(monthDiv);
@@ -1571,7 +1168,7 @@ function renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth
   const todayLeft = daysBetween(minDate, today) * dayWidth;
   if (todayLeft >= 0 && todayLeft <= totalWidth) {
     html += `<div class="tc-today-line" style="left:${todayLeft}px;height:100%;"></div>`;
-    html += `<div class="tc-today-label" style="left:${todayLeft + 4}px;">${_t('todayLabel')}</div>`;
+    html += `<div class="tc-today-label" style="left:${todayLeft + 4}px;">今天</div>`;
   }
 
   // Person bars
@@ -1633,13 +1230,13 @@ function renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth
         <line x1="16" y1="36" x2="40" y2="36"/>
         <line x1="16" y1="44" x2="36" y2="44"/>
       </svg>
-      <p>${tasks.length === 0 ? _t('emptyNoTasks') : _t('emptyNoMatch')}</p>
+      <p>${tasks.length === 0 ? '暂无任务，点击工具栏"添加任务"开始' : '无匹配任务'}</p>
     </div>`;
   }
 
   tc.innerHTML = html;
   tc.style.width = totalWidth + 'px';
-  // 增加底部留白 Increase bottom padding for breathing room
+  // 增加底部留白，防止最底部的任务紧贴边缘
   tc.style.minHeight = Math.max(totalContentHeight, 200) + BREATHING_ROOM + 'px';
 
   // Attach events to bars
@@ -1727,7 +1324,7 @@ function renderDependencyArrows(barPositions, totalWidth, totalHeight) {
 }
 
 // ============================================================
-//  选择 / 交互 Selection
+//  选择 / 交互
 // ============================================================
 function selectTask(id) {
   // Deselect previous
@@ -1772,7 +1369,7 @@ function syncScrollToday() {
 }
 
 // ============================================================
-//  任务操作 Task operations
+//  任务操作
 // ============================================================
 function addTask(parentId) {
   const id = genId();
@@ -1785,10 +1382,10 @@ function deleteTask(id) {
   if (!task) return;
   const subtreeIds = getSubtreeIds(id);
   const hasChildren = subtreeIds.length > 1;
-  let msg = _tp('deleteConfirm', { name: task.name });
-  if (hasChildren) msg += `<br><br>${_tp('deleteChildrenWarning', { count: subtreeIds.length })}`;
-  else msg += ' ' + _t('deleteIrreversible');
-  showConfirm(_t('confirmTitle'), msg, () => {
+  let msg = `确定要删除「${task.name}」吗？`;
+  if (hasChildren) msg += `<br><br>该任务及其所有子任务（共 ${subtreeIds.length} 项）将被<b>永久删除</b>。`;
+  else msg += ' 此操作不可恢复。';
+  showConfirm('确认删除', msg, () => {
     pushUndo();
     tasks = tasks.filter(t => !subtreeIds.includes(t.id));
     if (selectedTaskId && subtreeIds.includes(selectedTaskId)) selectedTaskId = null;
@@ -1798,7 +1395,7 @@ function deleteTask(id) {
     });
     saveData();
     render();
-    showToast(_t('deleted'), 'success');
+    showToast('已删除', 'success');
   }, true);
 }
 
@@ -1807,10 +1404,10 @@ function indentTask(id) {
   if (!task) return;
   const siblings = getDirectChildren(task.parentId);
   const idx = siblings.indexOf(task);
-  if (idx <= 0) { showToast(_t('alreadyFirst'), 'error'); return; }
+  if (idx <= 0) { showToast('已是第一个任务，无法缩进', 'error'); return; }
   // Check max depth (10 levels max)
   const depth = getMaxDepthOfTask(id);
-  if (depth >= 10) { showToast(_t('maxDepthReached'), 'error'); return; }
+  if (depth >= 10) { showToast('已达到最大层次深度（10层），无法继续缩进', 'error'); return; }
   const newParent = siblings[idx - 1];
   const subtreeIds = getSubtreeIds(id);
   const taskAndKids = tasks.filter(t => subtreeIds.includes(t.id));
@@ -1826,12 +1423,12 @@ function indentTask(id) {
   tasks = others;
   saveData();
   render();
-  showToast(_t('indentSuccess'), 'success');
+  showToast('任务已缩进', 'success');
 }
 
 function outdentTask(id) {
   const task = tasks.find(t => t.id === id);
-  if (!task || !task.parentId) { showToast(_t('alreadyTop'), 'error'); return; }
+  if (!task || !task.parentId) { showToast('已是顶层任务', 'error'); return; }
   const parent = tasks.find(t => t.id === task.parentId);
   if (!parent) { task.parentId = null; saveData(); render(); return; }
   const subtreeIds = getSubtreeIds(id);
@@ -1844,7 +1441,7 @@ function outdentTask(id) {
   tasks = others;
   saveData();
   render();
-  showToast(_t('outdentSuccess'), 'success');
+  showToast('任务已取消缩进', 'success');
 }
 
 function moveTask(id, direction) {
@@ -1876,7 +1473,7 @@ function moveTask(id, direction) {
 }
 
 // ============================================================
-//  编辑模态框 Edit Modal
+//  编辑模态框
 // ============================================================
 let editingId = null;
 
@@ -1886,11 +1483,11 @@ function openEditModal(id) {
   const isNew = !t;
   const isParent = t && isParentTask(t);
 
-  $('modalTitle').textContent = isNew ? _t('modalAddTitle') : _t('modalEditTitle');
+  $('modalTitle').textContent = isNew ? '添加任务' : '编辑任务';
   $('editId').value = id || '';
 
   if (isNew) {
-    $('editName').value = _t('newTaskName');
+    $('editName').value = '新任务';
     $('editStartDate').value = toDateStr(getToday());
     $('editEndDate').value = toDateStr(addMonths(getToday(), 1));
     $('editProgress').value = 0;
@@ -1938,14 +1535,14 @@ function closeEditModal() {
   pendingNewTask = null;
 }
 
-// 实时更新日期逻辑 Live predecessor date link
+// 实时更新日期逻辑
 function updateDatesFromPredecessors() {
-  // 如果是父任务，日期由子任务决定，不自动修改 For parent tasks, dates come from children
+  // 如果是父任务，日期由子任务决定，不自动修改
   const isParent = editingId ? isParentTask(tasks.find(t => t.id === editingId)) : false;
   if (isParent) return;
 
   const checkedBoxes = $('predList').querySelectorAll('input[type="checkbox"]:checked');
-  if (checkedBoxes.length === 0) return; // 没有勾选前置任务，不调整 No predecessors selected
+  if (checkedBoxes.length === 0) return; // 没有勾选前置任务，不调整
 
   let maxEnd = null;
   checkedBoxes.forEach(cb => {
@@ -1959,18 +1556,18 @@ function updateDatesFromPredecessors() {
   });
 
   if (maxEnd) {
-    // 开始日期 = 最晚结束日期 + 1天 Start date = latest end + 1 day
+    // 开始日期 = 最晚结束日期 + 1天
     const nextStart = new Date(maxEnd);
     nextStart.setDate(nextStart.getDate() + 1);
     const newStartDateStr = toDateStr(nextStart);
 
     $('editStartDate').value = newStartDateStr;
 
-    // 如果是里程碑，结束日期 = 开始日期 If milestone, end = start
+    // 如果是里程碑，结束日期 = 开始日期
     if ($('editIsMilestone').checked) {
       $('editEndDate').value = newStartDateStr;
     } else {
-      // 结束日期 = 开始日期 + 1个月 End date = start + 1 month
+      // 结束日期 = 开始日期 + 1个月
       const nextEnd = new Date(nextStart);
       nextEnd.setMonth(nextEnd.getMonth() + 1);
       $('editEndDate').value = toDateStr(nextEnd);
@@ -1983,7 +1580,7 @@ function renderPredList(taskId, isNew) {
   container.innerHTML = '';
   const otherTasks = tasks.filter(t => t.id !== taskId);
   if (otherTasks.length === 0) {
-    container.innerHTML = '<div style="padding:8px;font-size:12px;color:var(--gray-400);text-align:center;">' + _t('noOtherTasks') + '</div>';
+    container.innerHTML = '<div style="padding:8px;font-size:12px;color:var(--gray-400);text-align:center;">没有其他任务可以设置依赖</div>';
     return;
   }
   otherTasks.forEach(t => {
@@ -1997,7 +1594,7 @@ function renderPredList(taskId, isNew) {
       cb.checked = true;
     }
     
-    // 绑定 change 事件，实时联动更新日期 Bind change event for live date update
+    // 绑定 change 事件，实时联动更新日期
     cb.addEventListener('change', () => {
       updateDatesFromPredecessors();
     });
@@ -2012,16 +1609,16 @@ function renderPredList(taskId, isNew) {
 
 function collectFormData() {
   const name = $('editName').value.trim();
-  if (!name) { showToast(_t('validationNameRequired'), 'error'); return null; }
+  if (!name) { showToast('请输入任务名称', 'error'); return null; }
   let startDate = $('editStartDate').value;
   let endDate = $('editEndDate').value;
   const isParent = editingId ? isParentTask(tasks.find(t => t.id === editingId)) : false;
 
   // For parent tasks, dates come from children
   if (!isParent) {
-    if (!startDate) { showToast(_t('validationStartDate'), 'error'); return null; }
-    if (!endDate) { showToast(_t('validationEndDate'), 'error'); return null; }
-    if (endDate < startDate) { showToast(_t('validationDateOrder'), 'error'); return null; }
+    if (!startDate) { showToast('请选择开始日期', 'error'); return null; }
+    if (!endDate) { showToast('请选择完成日期', 'error'); return null; }
+    if (endDate < startDate) { showToast('完成日期不能早于开始日期', 'error'); return null; }
   }
 
   const progress = parseInt($('editProgress').value) || 0;
@@ -2072,33 +1669,27 @@ function saveFormData() {
     const predsChanged = JSON.stringify((oldTask.predecessors||[]).sort()) !== JSON.stringify((data.predecessors||[]).sort());
 
     if ((datesChanged || predsChanged) && successors.length > 0) {
-      let warnMsg = _tp('successorWarning', {
-        name: oldTask.name,
-        count: successors.length,
-        successors: successors.map(st => {
+      let warnMsg = `<b>「${oldTask.name}」</b>有 <b>${successors.length}</b> 个后续任务依赖于此任务：<br>
+        <span style="font-size:11px;color:var(--gray-500);">${successors.map(st => {
           const pt = tasks.find(t => t.id === st.id);
           return (pt ? (pt._wbs||'') + ' ' + pt.name : st.name);
-        }).join('、')
-      });
+        }).join('、')}</span><br><br>`;
       let dayShift = 0;
       if (datesChanged) {
-        // FS 依赖：使用结束日期偏移 FS: use end date offset
+        // FS 依赖：使用结束日期偏移（后续任务关心前置何时完成）
         const oldEnd = parseDate(oldTask.endDate);
         const newEnd = parseDate(data.endDate);
         if (oldEnd && newEnd) dayShift = daysBetween(oldEnd, newEnd);
-        warnMsg += _tp('dateChanged', {
-          days: Math.abs(dayShift),
-          dir: dayShift > 0 ? _t('dateDelay') : _t('dateAdvance')
-        });
+        warnMsg += `📅 完成日期已变更，偏移 <b>${Math.abs(dayShift)}</b> 天${dayShift > 0 ? '（推迟）' : '（提前）'}。`;
       }
       if (predsChanged) {
-        warnMsg += (datesChanged ? '<br>' : '') + _t('predChanged');
+        warnMsg += `${datesChanged ? '<br>' : ''}🔗 前置依赖关系已变更。`;
       }
-      warnMsg += _t('successorChoice');
+      warnMsg += `<br><br><span style="font-size:12px;color:var(--gray-500);">请选择后续任务的处理方式：</span>`;
 
       const doSave = (shiftSuccessors) => {
         if (shiftSuccessors && dayShift !== 0) {
-          // 递归级联：将偏移传播到所有后置任务及其后置任务 Cascade shift to all successors
+          // 递归级联：将偏移传播到所有后置任务及其后置任务
           const visited = new Set();
           function cascadeShift(taskId) {
             if (visited.has(taskId)) return;
@@ -2126,13 +1717,13 @@ function saveFormData() {
         saveData();
         closeEditModal();
         render();
-        showToast(_t('saveSuccess') + (startAdjusted ? _t('startAdjusted') : ''), 'success');
+        showToast('保存成功' + (startAdjusted ? '，起始日期已根据前置任务自动调整' : ''), 'success');
       };
 
-      showConfirmEx(_t('successorTitle'),
+      showConfirmEx('关联任务调整',
         warnMsg,
-        dayShift !== 0 ? _t('successorSaveSync') : _t('modalSave'),
-        _t('successorSaveOnly'),
+        dayShift !== 0 ? '保存并同步调整' : '确定保存',
+        '仅保存',
         () => doSave(true),
         () => doSave(false),
         null,
@@ -2159,11 +1750,11 @@ function saveFormData() {
   saveData();
   closeEditModal();
   render();
-  showToast(_t('saveSuccess') + (startAdjusted ? _t('startAdjusted') : ''), 'success');
+  showToast('保存成功' + (startAdjusted ? '，起始日期已根据前置任务自动调整' : ''), 'success');
 }
 
 // ============================================================
-//  数据管理 Data Management
+//  数据管理
 // ============================================================
 function loadData() {
   try {
@@ -2213,12 +1804,12 @@ function exportData() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${_t('exportPrefix')}${getToday().toISOString().slice(0, 10)}.json`;
+  a.download = `项目甘特图_${getToday().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast(_t('exportSuccess'), 'success');
+  showToast('导出成功', 'success');
 }
 
 function importData(file) {
@@ -2236,13 +1827,13 @@ function importData(file) {
         taskData = raw;
         uiData = null;
       } else {
-        throw new Error(_t('importInvalid'));
+        throw new Error('数据格式无效：无法识别的文件结构');
       }
       for (const t of taskData) {
-        if (!t.name || !t.startDate) throw new Error(_t('importMissingFields'));
+        if (!t.name || !t.startDate) throw new Error('数据格式无效：缺少名称或开始日期');
       }
-      showConfirm(_t('importConfirmTitle'),
-        _tp('importConfirm', { count: taskData.length }),
+      showConfirm('导入数据',
+        `确定要导入 <b>${taskData.length}</b> 条任务记录吗？<br><br>当前数据将被<b>覆盖</b>，建议先导出备份。`,
         () => {
           pushUndo();
           tasks = taskData;
@@ -2265,19 +1856,19 @@ function importData(file) {
           if (uiData && uiData.scrollLeft != null) {
             requestAnimationFrame(() => { rightBody.scrollLeft = uiData.scrollLeft; });
           }
-          showToast(_tp('importSuccess', { count: taskData.length }), 'success');
+          showToast(`已导入 ${taskData.length} 条记录`, 'success');
         },
         true
       );
     } catch(err) {
-      showToast(err.message || _t('importFailed'), 'error');
+      showToast(err.message || '导入失败：文件格式错误', 'error');
     }
   };
   reader.readAsText(file);
 }
 
 // ============================================================
-//  确认对话框 Confirm Dialog
+//  确认对话框
 // ============================================================
 let confirmCallback = null;
 let confirmMiddleCallback = null;
@@ -2289,7 +1880,7 @@ function showConfirm(title, msg, cb, msgIsHtml) {
   confirmCallback = cb;
   confirmMiddleCallback = null;
   $('confirmMiddle').style.display = 'none';
-  $('confirmOk').textContent = _t('confirmOk');
+  $('confirmOk').textContent = '确定';
   $('confirmDlg').classList.add('show');
 }
 
@@ -2299,7 +1890,7 @@ function showConfirmEx(title, msg, okText, middleText, onOk, onMiddle, onCancel,
   else $('confirmMsg').textContent = msg;
   confirmCallback = onOk;
   confirmMiddleCallback = onMiddle;
-  $('confirmOk').textContent = okText || _t('confirmOk');
+  $('confirmOk').textContent = okText || '确定';
   if (middleText) {
     $('confirmMiddle').textContent = middleText;
     $('confirmMiddle').style.display = 'inline-flex';
@@ -2313,7 +1904,7 @@ function showConfirmEx(title, msg, okText, middleText, onOk, onMiddle, onCancel,
 }
 
 // ============================================================
-//  Toast 提示 Toast notification
+//  Toast
 // ============================================================
 let toastTimer = null;
 
@@ -2326,10 +1917,10 @@ function showToast(msg, type) {
 }
 
 // ============================================================
-//  底部状态栏 (时间与Tips) Status Bar
+//  底部状态栏 (时间与Tips)
 // ============================================================
 function initStatusBar() {
-  // 1. 实时时间 Real-time clock
+  // 1. 实时时间
   const timeEl = $('statusTime');
   function updateTime() {
     const now = new Date();
@@ -2339,34 +1930,40 @@ function initStatusBar() {
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const ss = String(now.getSeconds()).padStart(2, '0');
-    const wd = getWeekdayName(now.getDay());
-    const wp = getWeekPrefix();
-    timeEl.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss}${wp ? ' ' + wp + wd : ' ' + wd}`;
+    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    timeEl.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss} 星期${days[now.getDay()]}`;
   }
   setInterval(updateTime, 1000);
   updateTime();
 
-  // 2. 轮播Tips Rotating tips
+  // 2. 轮播Tips
   const tipsEl = $('statusTips');
-  const TIPS = _t('tips');
+  const TIPS = [
+    "💡 提示：请养成随时点击右上角「导出」备份数据的习惯，以防数据丢失。",
+    "💡 提示：按住 Ctrl 或 Cmd 键并滚动鼠标滚轮，可以快速缩放时间轴。",
+    "💡 提示：双击左侧任务行或右侧甘特条，可以快速打开任务编辑窗口。",
+    "⚡ 提示：带有闪电图标的任务属于「关键路径」，其延迟会影响整个项目的工期。",
+    "◆ 提示：菱形图标代表「里程碑」，通常用于标记项目的重要节点或阶段成果。",
+    "💡 提示：在编辑任务时勾选前置任务，系统会自动计算并顺延开始时间。",
+    "💡 提示：在右侧甘特图区域按住鼠标左键拖动，可以快速左右平移时间轴。"
+  ];
   let tipIndex = 0;
-
+  
   function rotateTips() {
     tipsEl.classList.add('fade');
     setTimeout(() => {
       tipIndex = (tipIndex + 1) % TIPS.length;
       tipsEl.innerHTML = TIPS[tipIndex];
       tipsEl.classList.remove('fade');
-    }, 500); // 配合 CSS 的 0.5s 过渡动画 CSS transition: 0.5s
+    }, 500); // 配合 CSS 的 0.5s 过渡动画
   }
-
+  
   tipsEl.innerHTML = TIPS[0];
-  setInterval(rotateTips, 15000); // 每15秒切换一次 Every 15s
   setInterval(rotateTips, 15000); // 每15秒切换一次
 }
 
 // ============================================================
-//  事件绑定 Event Binding
+//  事件绑定
 // ============================================================
 function initEvents() {
   // Scroll sync
@@ -2414,25 +2011,25 @@ function initEvents() {
     });
   });
 
-  // Zoom — 带视口中心保持 Zoom with viewport center keep
+  // Zoom — 带视口中心保持
   function doZoom(fn) {
     const oldDw = getDayWidth();
     const vw = rightBody.clientWidth;
-    // 视口中心距离时间轴最左侧的像素距离 Viewport center x (px)
+    // 视口中心距离时间轴最左侧的像素距离
     const centerX = rightBody.scrollLeft + vw / 2;
-    // 视口中心距离时间轴最左侧的天数（浮点数）Viewport center x (days)
+    // 视口中心距离时间轴最左侧的天数（浮点数）
     const centerDays = centerX / oldDw;
 
     fn();
 
-    // 缩放后新的每天像素宽度 New day width after zoom
+    // 缩放后新的每天像素宽度
     const newDw = getDayWidth();
-    // 视口中心距离时间轴最左侧的新像素距离 New center position
+    // 视口中心距离时间轴最左侧的新像素距离
     const newCenterX = centerDays * newDw;
-
-    // 同步设置 scrollLeft，避免闪烁和计算延迟 Set scrollLeft to avoid flicker
+    
+    // 同步设置 scrollLeft，避免闪烁和计算延迟
     rightBody.scrollLeft = Math.max(0, newCenterX - vw / 2);
-    // 手动同步表头位置 Sync header position
+    // 手动同步表头位置
     syncScrollLeft();
   }
 
@@ -2467,36 +2064,33 @@ function initEvents() {
     if (selectedTaskId) {
       addTask(selectedTaskId);
     } else {
-      showToast(_t('selectParentFirst'), 'error');
+      showToast('请先选择一个父任务', 'error');
     }
   });
   $('deleteBtn').addEventListener('click', () => {
     if (selectedTaskId) deleteTask(selectedTaskId);
-    else showToast(_t('selectTaskFirst'), 'error');
+    else showToast('请先选择一个任务', 'error');
   });
   $('indentBtn').addEventListener('click', () => {
     if (selectedTaskId) indentTask(selectedTaskId);
-    else showToast(_t('selectTaskFirst'), 'error');
+    else showToast('请先选择一个任务', 'error');
   });
   $('outdentBtn').addEventListener('click', () => {
     if (selectedTaskId) outdentTask(selectedTaskId);
-    else showToast(_t('selectTaskFirst'), 'error');
+    else showToast('请先选择一个任务', 'error');
   });
   $('moveUpBtn').addEventListener('click', () => {
     if (selectedTaskId) moveTask(selectedTaskId, 'up');
-    else showToast(_t('selectTaskFirst'), 'error');
+    else showToast('请先选择一个任务', 'error');
   });
   $('moveDownBtn').addEventListener('click', () => {
     if (selectedTaskId) moveTask(selectedTaskId, 'down');
-    else showToast(_t('selectTaskFirst'), 'error');
+    else showToast('请先选择一个任务', 'error');
   });
 
   // Undo / Redo
   $('undoBtn').addEventListener('click', undo);
   $('redoBtn').addEventListener('click', redo);
-
-  // Language switch
-  $('langBtn').addEventListener('click', switchLang);
 
   // Import / Export
   $('exportBtn').addEventListener('click', exportData);
@@ -2667,10 +2261,9 @@ function updateZoomLabel() {
 }
 
 // ============================================================
-//  初始化 Init
+//  初始化
 // ============================================================
 function init() {
-  applyLanguage();
   loadData();
   loadUiState();
   updateZoomLabel();
