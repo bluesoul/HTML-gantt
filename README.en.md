@@ -26,4 +26,4 @@ A pure frontend, single-file HTML Gantt chart tool for project management. No in
 
 ## License
 
-Apache 2.0
+MIT
