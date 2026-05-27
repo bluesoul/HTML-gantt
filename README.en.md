@@ -2,6 +2,8 @@
 
 A pure frontend, single-file HTML Gantt chart tool for project management. No installation or backend required — just open in a browser.
 
+![Preview](preview.png)
+
 ## Features
 
 - **WBS Breakdown** — Organize tasks hierarchically
