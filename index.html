@@ -128,8 +128,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .panel-resize-handle.dragging { background: var(--primary); opacity: .5; }
 
 .milestone-badge { font-size: 9px; padding: 0 4px; border-radius: 2px; background: var(--p-high-bg); color: var(--p-high); flex-shrink: 0; margin-left: 4px; }
-.critical-badge { font-size: 9px; padding: 0 4px; border-radius: 2px; background: var(--p-critical-bg); color: var(--p-critical); flex-shrink: 0; margin-left: 4px; }
-
 .separator-row { height: 22px; display: flex; align-items: center; padding: 0 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-400); }
 
 /* ===== 右侧甘特图 ===== */
@@ -172,7 +170,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .gantt-bar.bar-today-range { outline: 2px solid var(--today-color) !important; outline-offset: 1px; border-radius: 4px; }
 .gantt-bar.bar-today-range.selected { outline: 2px solid var(--gray-800) !important; outline-offset: 1px; }
 .milestone-diamond.bar-today-range { box-shadow: 0 0 0 2px var(--today-color) !important; }
-.gantt-bar.bar-critical.bar-today-range { outline: 2px solid #fff !important; outline-offset: 1px; }
 
 /* 进度填充 */
 .bar-progress { position: absolute; top: 0; left: 0; height: 15%; border-radius: 2px; background: rgba(50,242,100,.8); pointer-events: none; }
@@ -245,6 +242,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.success { background: #10b981; }
 .toast.error { background: var(--danger); }
+
+/* 进度滑块 Progress Slider */
+.progress-slider-wrap { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+.progress-slider-track { position: relative; flex: 1; height: 6px; background: var(--gray-200); border-radius: 3px; cursor: pointer; }
+.progress-slider-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--primary); border-radius: 3px; pointer-events: none; transition: width 0.05s; }
+.progress-slider-thumb { position: absolute; top: 50%; width: 16px; height: 16px; background: #fff; border: 2px solid var(--primary); border-radius: 50%; transform: translate(-50%, -50%); cursor: grab; z-index: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: box-shadow .15s; }
+.progress-slider-thumb:hover { box-shadow: 0 1px 6px rgba(79,110,247,0.35); }
+.progress-slider-thumb:active { cursor: grabbing; }
+.progress-slider-track.disabled { opacity: 0.5; cursor: not-allowed; }
+.progress-slider-track.disabled .progress-slider-thumb { cursor: not-allowed; }
+.progress-value { font-size: 12px; font-weight: 600; color: var(--gray-700); min-width: 32px; text-align: right; }
+
+/* 拖拽状态 Drag-and-drop states */
+.task-row.dragging { opacity: 0.35; background: var(--primary-light); }
+.drag-ghost { position: fixed; z-index: 9999; pointer-events: none; opacity: 0.9; background: #fff; border: 1px solid var(--primary); border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); font-size: 12px; color: var(--gray-700); padding: 4px 10px; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.drag-ghost .ghost-indent { display: inline-block; height: 1px; background: var(--primary); vertical-align: middle; }
+.drop-indicator { position: absolute; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 20; pointer-events: none; border-radius: 1px; }
+.drop-indicator::before { content: ''; position: absolute; left: -3px; top: -3px; width: 8px; height: 8px; background: var(--primary); border-radius: 50%; }
 
 @media (max-width: 768px) {
   .left-panel { width: 360px !important; }
@@ -388,7 +403,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
         </div>
         <div class="form-group" style="flex:0 0 70px;">
           <label class="form-label">进度</label>
-          <input class="form-input" id="editProgress" type="number" min="0" max="100" value="0" style="text-align:center;" />
+          <div class="progress-slider-wrap">
+            <div class="progress-slider-track" id="progressTrack">
+              <div class="progress-slider-fill" id="progressFill"></div>
+              <div class="progress-slider-thumb" id="progressThumb"></div>
+            </div>
+            <span class="progress-value" id="progressValue">0%</span>
+            <input type="hidden" id="editProgress" value="0" />
+          </div>
         </div>
       </div>
 
@@ -783,111 +805,6 @@ function isInDateRange(task) {
 }
 
 // ============================================================
-//  关键路径计算
-// ============================================================
-function getLeafTasks() {
-  return tasks.filter(t => !isParentTask(t));
-}
-
-function topologicalSort(leaves) {
-  const visited = {}, stack = {};
-  const result = [];
-  const taskMap = {};
-  leaves.forEach(t => taskMap[t.id] = t);
-
-  function visit(id) {
-    if (stack[id]) return false; // cycle detected
-    if (visited[id]) return true;
-    visited[id] = true;
-    stack[id] = true;
-    const t = taskMap[id];
-    if (t && t.predecessors) {
-      for (const pid of t.predecessors) {
-        if (taskMap[pid]) { if (!visit(pid)) return false; }
-      }
-    }
-    stack[id] = false;
-    if (t) result.push(t);
-    return true;
-  }
-
-  for (const t of leaves) {
-    if (!visited[t.id]) { if (!visit(t.id)) return null; }
-  }
-  return result;
-}
-
-function calcCriticalPath() {
-  // Reset
-  tasks.forEach(t => { t._isCritical = false; });
-
-  const childrenMap = buildChildrenMap();
-  const leaves = getLeafTasks();
-  if (leaves.length === 0) return;
-
-  const { minDate } = calcTimelineRange();
-  const today = getToday();
-
-  leaves.forEach(t => {
-    const dates = getTaskDates(t);
-    const start = dates.start || today;
-    const end = dates.end || today;
-    t._dayStart = daysBetween(minDate, start);
-    t._dayEnd = daysBetween(minDate, end);
-    t._duration = Math.max(daysBetween(start, end) + 1, 1);
-  });
-
-  const sorted = topologicalSort(leaves);
-  if (!sorted) { showToast('检测到循环依赖，无法计算关键路径', 'error'); return; }
-
-  const leafMap = {};
-  sorted.forEach(t => leafMap[t.id] = t);
-
-  // Forward pass
-  sorted.forEach(t => {
-    if (!t.predecessors || t.predecessors.length === 0) {
-      t._es = t._dayStart;
-    } else {
-      t._es = Math.max(...t.predecessors.map(pid => {
-        const pred = leafMap[pid];
-        return pred ? pred._ef : t._dayStart;
-      }));
-    }
-    t._ef = t._es + t._duration - 1;
-  });
-
-  // Backward pass
-  const projectEnd = sorted.length > 0 ? Math.max(...sorted.map(t => t._ef)) : 0;
-  sorted.reverse().forEach(t => {
-    const successors = sorted.filter(s => s.predecessors && s.predecessors.includes(t.id));
-    if (successors.length === 0) {
-      t._lf = projectEnd;
-    } else {
-      t._lf = Math.min(...successors.map(s => s._lf || projectEnd));
-    }
-    t._ls = t._lf - t._duration + 1;
-    t._float = t._ls - t._es;
-    t._isCritical = t._float < 1;
-  });
-
-  // Propagate to parent tasks
-  function propagateToParent(taskId) {
-    const t = tasks.find(t => t.id === taskId);
-    if (!t) return;
-    const children = getDirectChildren(taskId);
-    const anyChildCritical = children.some(c => {
-      const ct = tasks.find(tt => tt.id === c.id);
-      return ct && (ct._isCritical || propagateToParent(c.id));
-    });
-    if (anyChildCritical) t._isCritical = true;
-    return t._isCritical;
-  }
-  tasks.forEach(t => {
-    if (t._isCritical) propagateToParent(t.parentId);
-  });
-}
-
-// ============================================================
 //  时间轴计算
 // ============================================================
 function calcTimelineRange() {
@@ -930,7 +847,6 @@ function render() {
   const visibleTasks = getVisibleTaskList();
   const hasFilter = !!filterQuery;
 
-  calcCriticalPath();
   rebuildWbs();
 
   renderStats();
@@ -951,11 +867,9 @@ function render() {
 function renderStats() {
   const total = tasks.length;
   const milestones = tasks.filter(t => isMilestone(t) && !isParentTask(t)).length;
-  const criticalCount = tasks.filter(t => t._isCritical).length;
   stats.innerHTML = `
     <span class="stat">任务 <b>${total}</b></span>
     <span class="stat">里程碑 <b style="color:var(--p-high)">${milestones}</b></span>
-    <span class="stat">关键路径 <b style="color:var(--p-critical)">${criticalCount}</b></span>
   `;
 }
 
@@ -968,7 +882,7 @@ function renderTaskList(visibleTasks, hasFilter) {
 
   visibleTasks.forEach(({ task, depth }) => {
     const row = document.createElement('div');
-    row.className = 'task-row' + (task._isCritical ? ' critical' : '') + (isParentTask(task) ? ' parent-row' : '');
+    row.className = 'task-row' + (isParentTask(task) ? ' parent-row' : '');
     if (task.id === selectedTaskId) row.classList.add('selected');
     row.dataset.id = task.id;
 
@@ -1008,13 +922,6 @@ function renderTaskList(visibleTasks, hasFilter) {
       mb.textContent = '◆';
       mb.title = '里程碑：该任务为单日节点';
       name.appendChild(mb);
-    }
-    if (task._isCritical) {
-      const cb = document.createElement('span');
-      cb.className = 'critical-badge';
-      cb.textContent = '⚡';
-      cb.title = '关键路径：此任务延迟将影响项目总工期';
-      name.appendChild(cb);
     }
     row.appendChild(name);
 
@@ -1061,8 +968,19 @@ function renderTaskList(visibleTasks, hasFilter) {
     dot.appendChild(pdot);
     row.appendChild(dot);
 
-    row.addEventListener('click', () => selectTask(task.id));
-    row.addEventListener('dblclick', () => openEditModal(task.id));
+    row.addEventListener('click', (e) => {
+      if (dragState && dragState.isDragging) return;
+      selectTask(task.id);
+    });
+    row.addEventListener('dblclick', (e) => {
+      if (dragState && dragState.isDragging) return;
+      openEditModal(task.id);
+    });
+    row.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // left button only
+      if (e.target.closest('.toggle-btn')) return; // don't interfere with expand/collapse
+      startDrag(e, task.id);
+    });
 
     taskList.appendChild(row);
   });
@@ -1185,13 +1103,12 @@ function renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth
 
     const rowTop = idx * ROW_HEIGHT;
     const isParent = isParentTask(task);
-    const isCrit = task._isCritical;
     const isMile = isMilestone(task) && !isParent;
-    const inRange = !isParent && !isCrit && isInDateRange(task);
+    const inRange = !isParent && isInDateRange(task);
     const pri = task.priority || 'medium';
-    const priClass = isCrit ? 'bar-critical' : ('bar-' + pri);
+    const priClass = 'bar-' + pri;
 
-    barPositions.push({ task, rowTop, bar, isParent, isCrit, isMile });
+    barPositions.push({ task, rowTop, bar, isParent, isMile });
 
     const barHeight = isParent ? 24 : 20;
     const barTop = (ROW_HEIGHT - barHeight) / 2;
@@ -1199,7 +1116,7 @@ function renderTimelineBody(visibleTasks, minDate, maxDate, dayWidth, totalWidth
     if (isMile) {
       // Milestone diamond
       const diamondCenter = bar.left + bar.width / 2;
-      const mileClass = isCrit ? 'bar-critical' : ('bar-' + pri);
+      const mileClass = 'bar-' + pri;
       barsHtml += `<div class="milestone-wrap" data-id="${task.id}" style="left:${diamondCenter - 7}px;top:${rowTop + (ROW_HEIGHT - 14) / 2}px;width:14px;height:14px;">
         <div class="milestone-diamond ${mileClass}${selectedTaskId === task.id ? ' selected' : ''}${inRange ? ' bar-today-range' : ''}"></div>
       </div>`;
@@ -1266,9 +1183,6 @@ function renderDependencyArrows(barPositions, totalWidth, totalHeight) {
     defs.innerHTML = `
       <marker id="arrow-fs" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
         <polygon points="0 0, 6 2.5, 0 5" fill="#94a3b8" />
-      </marker>
-      <marker id="arrow-fs-critical" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
-        <polygon points="0 0, 6 2.5, 0 5" fill="#e74c5e" />
       </marker>`;
     svg.appendChild(defs);
   }
@@ -1295,7 +1209,6 @@ function renderDependencyArrows(barPositions, totalWidth, totalHeight) {
       const y1 = predBP.rowTop + ROW_HEIGHT / 2;
       const x2 = bp.bar.left;
       const y2 = bp.rowTop + ROW_HEIGHT / 2;
-      const isCrit = t._isCritical || predBP.task._isCritical;
       const gap = 12;
       let d;
       if (Math.abs(y2 - y1) < 4) {
@@ -1314,10 +1227,10 @@ function renderDependencyArrows(barPositions, totalWidth, totalHeight) {
       path.classList.add('dep-path');
       path.setAttribute('d', d);
       path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', isCrit ? '#e74c5e' : '#94a3b8');
-      path.setAttribute('stroke-width', isCrit ? '2' : '1.5');
-      path.setAttribute('stroke-dasharray', isCrit ? '4,2' : 'none');
-      path.setAttribute('marker-end', isCrit ? 'url(#arrow-fs-critical)' : 'url(#arrow-fs)');
+      path.setAttribute('stroke', '#94a3b8');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('stroke-dasharray', 'none');
+      path.setAttribute('marker-end', 'url(#arrow-fs)');
       svg.appendChild(path);
     });
   });
@@ -1491,6 +1404,7 @@ function openEditModal(id) {
     $('editStartDate').value = toDateStr(getToday());
     $('editEndDate').value = toDateStr(addMonths(getToday(), 1));
     $('editProgress').value = 0;
+    if (window._setProgressSlider) _setProgressSlider(0);
     $('editPriority').value = 'medium';
     $('editAssignee').value = '';
     $('editNotes').value = '';
@@ -1498,13 +1412,14 @@ function openEditModal(id) {
     $('parentDateHint').style.display = 'none';
     $('editStartDate').disabled = false;
     $('editEndDate').disabled = false;
-    $('editProgress').disabled = false;
+    $('progressTrack').classList.remove('disabled');
   } else {
     $('editName').value = t.name || '';
     $('editPriority').value = t.priority || 'medium';
     $('editStartDate').value = t.startDate || '';
     $('editEndDate').value = t.endDate || '';
     $('editProgress').value = t.progress || 0;
+    if (window._setProgressSlider) _setProgressSlider(t.progress || 0);
     $('editAssignee').value = t.assignee || '';
     $('editNotes').value = t.notes || '';
     $('editIsMilestone').checked = isMilestone(t) && !isParent;
@@ -1512,12 +1427,12 @@ function openEditModal(id) {
       $('parentDateHint').style.display = 'block';
       $('editStartDate').disabled = true;
       $('editEndDate').disabled = true;
-      $('editProgress').disabled = true;
+      $('progressTrack').classList.add('disabled');
     } else {
       $('parentDateHint').style.display = 'none';
       $('editStartDate').disabled = false;
       $('editEndDate').disabled = false;
-      $('editProgress').disabled = false;
+      $('progressTrack').classList.remove('disabled');
     }
   }
 
@@ -1533,6 +1448,73 @@ function closeEditModal() {
   $('editModal').classList.remove('show');
   editingId = null;
   pendingNewTask = null;
+}
+
+// ============================================================
+//  进度滑块 Progress Slider
+// ============================================================
+let sliderDragging = false;
+
+function initProgressSlider() {
+  const track = $('progressTrack');
+  const fill = $('progressFill');
+  const thumb = $('progressThumb');
+  const valueEl = $('progressValue');
+  const hidden = $('editProgress');
+
+  function setSliderValue(val) {
+    val = Math.max(0, Math.min(100, parseInt(val) || 0));
+    hidden.value = val;
+    fill.style.width = val + '%';
+    thumb.style.left = val + '%';
+    valueEl.textContent = val + '%';
+  }
+
+  function getValueFromX(clientX) {
+    const rect = track.getBoundingClientRect();
+    const pct = ((clientX - rect.left) / rect.width) * 100;
+    return Math.round(Math.max(0, Math.min(100, pct)));
+  }
+
+  function isDisabled() {
+    return track.classList.contains('disabled');
+  }
+
+  track.addEventListener('mousedown', (e) => {
+    if (isDisabled()) return;
+    sliderDragging = true;
+    setSliderValue(getValueFromX(e.clientX));
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!sliderDragging) return;
+    setSliderValue(getValueFromX(e.clientX));
+  });
+
+  document.addEventListener('mouseup', () => {
+    sliderDragging = false;
+  });
+
+  // Touch support
+  track.addEventListener('touchstart', (e) => {
+    if (isDisabled()) return;
+    sliderDragging = true;
+    setSliderValue(getValueFromX(e.touches[0].clientX));
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!sliderDragging) return;
+    setSliderValue(getValueFromX(e.touches[0].clientX));
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    sliderDragging = false;
+  });
+
+  // Expose setter
+  window._setProgressSlider = setSliderValue;
 }
 
 // 实时更新日期逻辑
@@ -1579,6 +1561,10 @@ function renderPredList(taskId, isNew) {
   const container = $('predList');
   container.innerHTML = '';
   const otherTasks = tasks.filter(t => t.id !== taskId);
+  otherTasks.sort((a, b) => {
+    if (a._wbs && b._wbs) return a._wbs.localeCompare(b._wbs, undefined, { numeric: true });
+    return 0;
+  });
   if (otherTasks.length === 0) {
     container.innerHTML = '<div style="padding:8px;font-size:12px;color:var(--gray-400);text-align:center;">没有其他任务可以设置依赖</div>';
     return;
@@ -1774,7 +1760,7 @@ function loadData() {
 
 function saveData() {
   const clean = tasks.map(t => {
-    const { _wbs, _isCritical, _es, _ef, _ls, _lf, _float, _duration, _dayStart, _dayEnd, ...rest } = t;
+    const { _wbs, ...rest } = t;
     return rest;
   });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
@@ -1782,7 +1768,7 @@ function saveData() {
 
 function exportData() {
   const clean = tasks.map(t => {
-    const { _wbs, _isCritical, _es, _ef, _ls, _lf, _float, _duration, _dayStart, _dayEnd, ...rest } = t;
+    const { _wbs, ...rest } = t;
     return rest;
   });
   const exportObj = {
@@ -1942,10 +1928,10 @@ function initStatusBar() {
     "💡 提示：请养成随时点击右上角「导出」备份数据的习惯，以防数据丢失。",
     "💡 提示：按住 Ctrl 或 Cmd 键并滚动鼠标滚轮，可以快速缩放时间轴。",
     "💡 提示：双击左侧任务行或右侧甘特条，可以快速打开任务编辑窗口。",
-    "⚡ 提示：带有闪电图标的任务属于「关键路径」，其延迟会影响整个项目的工期。",
     "◆ 提示：菱形图标代表「里程碑」，通常用于标记项目的重要节点或阶段成果。",
     "💡 提示：在编辑任务时勾选前置任务，系统会自动计算并顺延开始时间。",
-    "💡 提示：在右侧甘特图区域按住鼠标左键拖动，可以快速左右平移时间轴。"
+    "💡 提示：在右侧甘特图区域按住鼠标左键拖动，可以快速左右平移时间轴。",
+    "💡 提示：长按左侧任务行可拖动来调整任务顺序和层级。"
   ];
   let tipIndex = 0;
   
@@ -1960,6 +1946,241 @@ function initStatusBar() {
   
   tipsEl.innerHTML = TIPS[0];
   setInterval(rotateTips, 15000); // 每15秒切换一次
+}
+
+// ============================================================
+//  拖拽 Drag-and-drop
+// ============================================================
+let dragState = null;
+const DRAG_DELAY = 800; // ms before drag starts
+const DRAG_THRESHOLD = 5; // px movement before canceling click
+
+function startDrag(e, taskId) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const row = leftBody.querySelector(`[data-id="${taskId}"]`);
+  if (!row) return;
+
+  dragState = {
+    taskId,
+    startX: e.clientX,
+    startY: e.clientY,
+    timer: null,
+    isDragging: false,
+    ghostEl: null,
+    indicatorEl: null,
+    offsetX: 0
+  };
+
+  dragState.timer = setTimeout(() => {
+    if (!dragState || dragState.isDragging) return;
+    beginDrag(taskId, row, e.clientX, e.clientY);
+  }, DRAG_DELAY);
+}
+
+function beginDrag(taskId, row, x, y) {
+  if (!dragState) return;
+  dragState.isDragging = true;
+
+  // Dim the original row
+  row.classList.add('dragging');
+
+  // Create ghost element
+  const task = tasks.find(t => t.id === taskId);
+  const visibleTasks = getVisibleTaskList();
+  const vt = visibleTasks.find(v => v.task.id === taskId);
+  const depth = vt ? vt.depth : 0;
+
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.innerHTML = `<span class="ghost-indent" style="width:${depth * 16}px;"></span>${task.name}`;
+  ghost.style.left = (x + 12) + 'px';
+  ghost.style.top = (y - 12) + 'px';
+  document.body.appendChild(ghost);
+  dragState.ghostEl = ghost;
+
+  // Create drop indicator
+  const indicator = document.createElement('div');
+  indicator.className = 'drop-indicator';
+  indicator.style.display = 'none';
+  leftBody.appendChild(indicator);
+  dragState.indicatorEl = indicator;
+
+  dragState.offsetX = 0;
+}
+
+function handleDragMove(x, y) {
+  if (!dragState || !dragState.isDragging) {
+    // Check if we've exceeded the threshold without starting drag
+    if (dragState && !dragState.isDragging) {
+      const dx = x - dragState.startX;
+      const dy = y - dragState.startY;
+      if (Math.sqrt(dx*dx + dy*dy) > DRAG_THRESHOLD) {
+        clearTimeout(dragState.timer);
+        dragState = null;
+      }
+    }
+    return;
+  }
+
+  // Move ghost
+  if (dragState.ghostEl) {
+    dragState.ghostEl.style.left = (x + 12) + 'px';
+    dragState.ghostEl.style.top = (y - 12) + 'px';
+  }
+
+  // Calculate horizontal offset for indent level
+  dragState.offsetX = x - dragState.startX;
+
+  // Find the drop target row based on Y position
+  const visibleTasks = getVisibleTaskList();
+  const rows = leftBody.querySelectorAll('.task-row');
+  if (rows.length === 0 || visibleTasks.length === 0) return;
+
+  // Calculate the Y offset within leftBody
+  const leftRect = leftBody.getBoundingClientRect();
+  const mouseY = y - leftRect.top + leftBody.scrollTop;
+
+  let targetIdx = -1;
+  for (let i = 0; i < visibleTasks.length; i++) {
+    const rowMid = i * ROW_HEIGHT + ROW_HEIGHT / 2;
+    if (mouseY < rowMid) {
+      targetIdx = i;
+      break;
+    }
+  }
+  if (targetIdx === -1) targetIdx = visibleTasks.length;
+
+  // Don't show indicator if hovering over the dragged task itself
+  if (targetIdx < visibleTasks.length && visibleTasks[targetIdx].task.id === dragState.taskId) {
+    dragState.indicatorEl.style.display = 'none';
+    return;
+  }
+
+  // Calculate target depth based on horizontal offset
+  const draggedVT = visibleTasks.find(v => v.task.id === dragState.taskId);
+  const origDepth = draggedVT ? draggedVT.depth : 0;
+  let targetDepth = origDepth;
+  if (dragState.offsetX > 30) {
+    // Right: increase indent (max +1 per 30px, limited by depth of target row above)
+    const maxUp = targetIdx > 0 ? visibleTasks[Math.min(targetIdx - 1, visibleTasks.length - 1)].depth + 1 : 0;
+    targetDepth = Math.min(origDepth + Math.floor(dragState.offsetX / 30), maxUp, 9);
+  } else if (dragState.offsetX < -30) {
+    // Left: decrease indent
+    targetDepth = Math.max(0, origDepth + Math.ceil(dragState.offsetX / 30));
+  }
+
+  // Show drop indicator
+  if (dragState.indicatorEl) {
+    const indicatorY = targetIdx * ROW_HEIGHT;
+    dragState.indicatorEl.style.display = 'block';
+    dragState.indicatorEl.style.top = indicatorY + 'px';
+    dragState.indicatorEl.style.left = (targetDepth * 20 + 4) + 'px';
+    dragState.indicatorEl.style.width = `calc(100% - ${targetDepth * 20 + 4}px)`;
+  }
+
+  // Store calculated target for drop
+  dragState.targetIdx = targetIdx;
+  dragState.targetDepth = targetDepth;
+}
+
+function handleDragEnd(x, y) {
+  if (!dragState) return;
+
+  if (dragState.isDragging && dragState.targetIdx !== undefined) {
+    performDrop(dragState.taskId, dragState.targetIdx, dragState.targetDepth);
+  }
+
+  // Cleanup
+  cleanupDrag();
+}
+
+function cleanupDrag() {
+  if (!dragState) return;
+
+  clearTimeout(dragState.timer);
+
+  // Remove ghost
+  if (dragState.ghostEl) dragState.ghostEl.remove();
+
+  // Remove indicator
+  if (dragState.indicatorEl) dragState.indicatorEl.remove();
+
+  // Remove dragging class
+  if (dragState.taskId) {
+    const row = leftBody.querySelector(`[data-id="${dragState.taskId}"]`);
+    if (row) row.classList.remove('dragging');
+  }
+
+  const wasDragging = dragState.isDragging;
+  dragState = null;
+
+  // Return whether a drag happened (for click suppression)
+  return wasDragging;
+}
+
+function performDrop(taskId, targetIdx, targetDepth) {
+  const visibleTasks = getVisibleTaskList();
+
+  // Remove the task and its subtree from the array
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const subtreeIds = getSubtreeIds(taskId);
+  const taskAndKids = tasks.filter(t => subtreeIds.includes(t.id));
+  const others = tasks.filter(t => !subtreeIds.includes(t.id));
+
+  // Calculate the new parentId based on target depth
+  // We need to find which task at (targetDepth - 1) above the target position should be the new parent
+  let newParentId = null;
+
+  if (targetDepth > 0) {
+    // Find the closest ancestor: walk upward from targetIdx to find a task at depth (targetDepth - 1)
+    for (let i = targetIdx - 1; i >= 0; i--) {
+      if (i >= visibleTasks.length) continue;
+      const vt = visibleTasks[i];
+      if (vt.task.id === taskId) continue; // skip the dragged task
+      if (vt.depth === targetDepth - 1) {
+        newParentId = vt.task.id;
+        break;
+      }
+      if (vt.depth < targetDepth - 1) {
+        // No suitable parent found at the right depth
+        newParentId = null;
+        break;
+      }
+    }
+  }
+
+  // Find the insert position in the 'others' array
+  // We need to insert after the task at position (targetIdx - 1) in the visible list
+  let insertIdx = others.length; // default: end
+  if (targetIdx > 0 && targetIdx <= visibleTasks.length) {
+    // Find the reference task (the one above the insertion point)
+    let refIdx = targetIdx - 1;
+    // If the reference task is the dragged task, go one more up
+    if (refIdx >= 0 && refIdx < visibleTasks.length && visibleTasks[refIdx].task.id === taskId) {
+      refIdx--;
+    }
+    if (refIdx >= 0 && refIdx < visibleTasks.length) {
+      const refId = visibleTasks[refIdx].task.id;
+      const refSubtree = getSubtreeIds(refId);
+      const lastRefIdx = Math.max(...refSubtree.map(sid => others.findIndex(t => t.id === sid)));
+      insertIdx = lastRefIdx + 1;
+    }
+  } else if (targetIdx === 0) {
+    insertIdx = 0;
+  }
+
+  // Apply the change
+  task.parentId = newParentId;
+  others.splice(insertIdx, 0, ...taskAndKids);
+
+  pushUndo();
+  tasks = others;
+  saveData();
+  render();
 }
 
 // ============================================================
@@ -2208,6 +2429,11 @@ function initEvents() {
   });
 
   document.addEventListener('mousemove', (e) => {
+    // Task drag-and-drop
+    if (dragState) {
+      handleDragMove(e.clientX, e.clientY);
+      return; // Don't process other drag handlers while task dragging
+    }
     // Timeline click-drag scroll
     if (rightBody._isDragging) {
       const dx = e.clientX - rightBody._dragStartX;
@@ -2234,7 +2460,11 @@ function initEvents() {
     }
   });
 
-  document.addEventListener('mouseup', () => {
+  document.addEventListener('mouseup', (e) => {
+    // Task drag-and-drop
+    if (dragState) {
+      handleDragEnd(e.clientX, e.clientY);
+    }
     if (rightBody._isDragging) {
       rightBody._isDragging = false;
       rightBody.style.cursor = '';
@@ -2268,6 +2498,7 @@ function init() {
   loadUiState();
   updateZoomLabel();
   render();
+  initProgressSlider();
   initStatusBar();
   requestAnimationFrame(() => syncScrollToday());
   initEvents();
