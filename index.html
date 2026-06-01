@@ -401,16 +401,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto
           <label class="form-label">完成日期 *</label>
           <input class="form-input" id="editEndDate" type="date" />
         </div>
-        <div class="form-group" style="flex:0 0 70px;">
-          <label class="form-label">进度</label>
-          <div class="progress-slider-wrap">
-            <div class="progress-slider-track" id="progressTrack">
-              <div class="progress-slider-fill" id="progressFill"></div>
-              <div class="progress-slider-thumb" id="progressThumb"></div>
-            </div>
-            <span class="progress-value" id="progressValue">0%</span>
-            <input type="hidden" id="editProgress" value="0" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">进度</label>
+        <div class="progress-slider-wrap">
+          <div class="progress-slider-track" id="progressTrack">
+            <div class="progress-slider-fill" id="progressFill"></div>
+            <div class="progress-slider-thumb" id="progressThumb"></div>
           </div>
+          <span class="progress-value" id="progressValue">0%</span>
+          <input type="hidden" id="editProgress" value="0" />
         </div>
       </div>
 
